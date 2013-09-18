@@ -478,7 +478,7 @@ class EmbedBug{
 		    	if(isset($AllMeta[$key]['title']) && count($AllMeta[$key]['title'])){
 		    		
 		    		if(array_key_exists('textcontent', $AllMeta[$key]['title'][0])){ 
-		    			$Parse['title'] = strtok($AllMeta[$key]['title'][0]['textcontent'], "\n");
+		    			$Parse['title'] = $AllMeta[$key]['title'][0]['textcontent'];
 		    		}			
 		    	}
 
@@ -494,6 +494,7 @@ class EmbedBug{
 			    				case "description" : $Parse['description'] = $content; break;
 			    				case "title"       : $Parse['title']       = $content; break;
 			    				case "author"      : $Parse['author']      = $content; break;
+			    				case "keywords"    : $Parse['keywords']    = explode(",", $content); break;
 			    			}
 
 			    			// replace with parsely JSON if it exists
@@ -519,7 +520,7 @@ class EmbedBug{
 			    			
 			    			$content = trim($Meta['content']);
 			    			
-			    			if(substr($prop, 0, 8) === 'twitter:'){ // twitter tags
+			    			if(stripos($prop,'twitter:')){ // twitter tags
 			    				switch($prop){
 			    					case "twitter:creator" 		: $Parse['twitter']     = $content; break;
 			    					case "twitter:url" 			: $Parse['link']   		= $content; break;
@@ -529,20 +530,20 @@ class EmbedBug{
 			      				}
 			    			}
 
-			    			if(substr($prop, 0, 3) === 'fb:'){ // an open graph tag
+			    			if(stripos($prop,'og:')){ // an open graph tag
 
 			    				switch($prop){
-			    					case "fb:image"		  : $Parse['image_url']   = $content; break;
-			    					case "fb:title"		  : $Parse['title'] 	  = $content; break;
-			    					case "fb:url"  		  : $Parse['link'] 		  = $content; break;
-			    					case "fb:site_name"   : $Parse['site_name']   = $content; break;
-			    					case "fb:type"        : $Parse['type']        = $content; break;
-			    					case "fb:description" : $Parse['description'] = $content; break;
+			    					case "og:image"		  : $Parse['image_url']   = $content; break;
+			    					case "og:title"		  : $Parse['title'] 	  = $content; break;
+			    					case "og:url"  		  : $Parse['link'] 		  = $content; break;
+			    					case "og:site_name"   : $Parse['site_name']   = $content; break;
+			    					case "og:type"        : $Parse['type']        = $content; break;
+			    					case "og:description" : $Parse['description'] = $content; break;
 			      				}
 			    			}
 
 			    			
-			    			if(substr($prop, 0, 8) === 'article:'){// replace 'article:' content
+			    			if(stripos($prop,'article:')){// replace 'article:' content
 			    				switch($prop){
 			    					case "article:author"		  : $Parse['author']         = $content; break;
 			    					case "article:published_time" : $Parse['published_time'] = $content; break;
@@ -558,7 +559,21 @@ class EmbedBug{
 		    }
     	}
 
-    	return $Feed;
+    	return $this->Finalize($Feed);
+	}
+
+	function Finalize($array){
+
+		foreach($array as $value){
+			if(is_array($value)){
+				$value = $this->Finalize($value);
+			}
+			else{
+				$value =  trim( utf8_decode( preg_replace('/[^(\x20-\x7F)]*/', '', $value) ) );
+			}
+		}
+
+		return $array;
 	}
 
 }

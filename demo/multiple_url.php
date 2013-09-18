@@ -17,8 +17,8 @@ LI{
 }
 
 li img{
-	display:inline;
-	float:left;
+	display:inline-block;
+	
 	margin-right:0.5em;
 }
 
@@ -163,7 +163,19 @@ if(count($HNLinks) && array_key_exists('a', $HNLinks)){
 	    					echo substr(htmlspecialchars($Values['twitter']), 1);
 	    				?>"><?php
 	    				echo htmlspecialchars($Values['twitter']);
-	    				?></a> )</LI></UL> <?php
+	    				?></a> )
+	    				<?php
+	    				if(array_key_exists('keywords', $Values)){
+	    					?><div><small><?php
+	    					if(is_array($Values['keywords'])){
+	    						echo htmlspecialchars(implode(",", $Values['keywords']));
+	    					}
+	    					else{
+	    						echo htmlspecialchars($Values['keywords']);
+	    					}
+	    				}
+	    				?></small></div>
+	    				</LI></UL> <?php
 	    			}
 	    		}
 
