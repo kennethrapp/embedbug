@@ -264,8 +264,8 @@ class EmbedBug{
         	'url'			=> $url,
         	'returntransfer'=> 1,
         	'header'		=> 1,
-        	'connecttimeout'=> 5,
-        	'timeout'		=> 15,
+        	//'connecttimeout'=> 5,
+        	//'timeout'		=> 15,
         	'useragent'	    => random_uagent() // select a random user agent by default
         ));
 
@@ -520,7 +520,8 @@ class EmbedBug{
 			    			
 			    			$content = trim($Meta['content']);
 			    			
-			    			if(stripos($prop,'twitter:')){ // twitter tags
+			    			if(stripos($prop,'twitter:') !== false){ // twitter tags
+			    				
 			    				switch($prop){
 			    					case "twitter:creator" 		: $Parse['twitter']     = $content; break;
 			    					case "twitter:url" 			: $Parse['link']   		= $content; break;
@@ -528,10 +529,11 @@ class EmbedBug{
 			    					case "twitter:description" 	: $Parse['description'] = $content; break;
 			    					case "twitter:image"        : $Parse['image_url']   = $content; break;
 			      				}
+			    			
 			    			}
 
-			    			if(stripos($prop,'og:')){ // an open graph tag
-
+			    			if(stripos($prop,'og:') !== false){ // an open graph tag
+			    				
 			    				switch($prop){
 			    					case "og:image"		  : $Parse['image_url']   = $content; break;
 			    					case "og:title"		  : $Parse['title'] 	  = $content; break;
@@ -540,10 +542,12 @@ class EmbedBug{
 			    					case "og:type"        : $Parse['type']        = $content; break;
 			    					case "og:description" : $Parse['description'] = $content; break;
 			      				}
+			    			
 			    			}
 
 			    			
-			    			if(stripos($prop,'article:')){// replace 'article:' content
+			    			if(stripos($prop,'article:') !== false){// replace 'article:' content
+			    			
 			    				switch($prop){
 			    					case "article:author"		  : $Parse['author']         = $content; break;
 			    					case "article:published_time" : $Parse['published_time'] = $content; break;
