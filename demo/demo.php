@@ -4,13 +4,15 @@
 ?url
 ?tags
 
+need to test and document the various methods and configuration
+
 */
 
-require_once(realpath("../src/Embedbug/Embedbug.php"));
+require_once(realpath("../src/EmbedBug/EmbedBug.php"));
 
 $url = "http://arstechnica.com/tech-policy/2013/09/secret-court-declassifies-opinion-providing-rationale-for-metadata-sharing/";
 
-$EmbedBug = new EmbedBug\Embedbug(
+$EmbedBug = new EmbedBug\EmbedBug(
 	
 	$url,
 	
@@ -31,7 +33,7 @@ header("Content-Type:text/plain;charset=utf-8");
 Result of a call to Arstechnica, ending at (or near) either the </head> tag or the first Mb.
 =======================================================================================================================
 <?php 
-	echo print_r($EmbedBug,true);
+	echo print_r($EmbedBug, true);
 ?>
 =======================================================================================================================
 get curl_info for arstechnica
@@ -43,4 +45,4 @@ get curl_info for arstechnica
 extract <meta> tags
 =======================================================================================================================
 <?php
-	echo print_r($EmbedBug->ExtractTags($url, array('meta')), true);
+	echo print_r($EmbedBug->ExtractTags($url, array('meta')));

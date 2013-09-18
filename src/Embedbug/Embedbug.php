@@ -1,8 +1,8 @@
-<?php namespace Embedbug;
+<?php namespace EmbedBug;
 
 require_once("uagent.php"); // randon user agent generator by Luka Pušić
 
-class Embedbug{
+class EmbedBug{
 
 	private $Content;
 	private $Curl;
@@ -10,6 +10,8 @@ class Embedbug{
 	private $terminate_string;
 	private $terminate_length;
 	private $urls;
+	private $doc;
+	private $xpath;
 
 	function __construct($urls, $settings=null, $terminate_string="</head>", $terminate_length=1024){
 		
@@ -24,25 +26,24 @@ class Embedbug{
 
 		/* for each url, initialize a cUrl object and add it to the array. */
 
-		if(is_array($urls) && count($url)){ 
+		if(is_array($urls) && count($urls)){ 
 
 	    	foreach($urls as $url){
-
-	    		$url = trim($url);
 
 	    		if(filter_var($url, FILTER_VALIDATE_URL) && !array_key_exists($url, $this->Curl)){ 
 	        		$this->Curl[$url] = $this->addHandle($url, $settings, $this->handle);	
 	        	}
 	    	}
 	    
-	    }else if(isset($urls)){ // if passed as a string
-	    	
-	    	$url = trim($urls);
+	    }else if(filter_var($urls, FILTER_VALIDATE_URL) && !array_key_exists($urls, $this->Curl)){ 
+	        	$this->Curl[$urls] = $this->addHandle($urls, $settings, $this->handle);	
+	    }
 
-	    	if(filter_var($url, FILTER_VALIDATE_URL) && !array_key_exists($url, $this->Curl)){ 
-	        	$this->Curl[$url] = $this->addHandle($url, $settings, $this->handle);	
-	        }
-	    } 
+	    	libxml_use_internal_errors(true);
+		    libxml_clear_errors();
+
+		    $this->doc = new \DOMDocument();
+		     
     }
 
     // return whether the length terminator has been reached
@@ -91,19 +92,13 @@ class Embedbug{
 		}
 
 		return $this->Content;
-
 	}
 
 
 	/*
 	return info about a transfer. 
 
-	$url can be one or more urls passed by the constructor. If null,
-	all passed arrays will be used.
-
-	$key can be the plaintext (lowercase, with spaces)
-	equivalent of a CURLINFO_ constant. If omitted, this method will
-	return the all curlinfo results as an associative array.  
+	 both $url and $key can be an array, string or null. 
 
 	"url"
 	"content type"
@@ -129,48 +124,112 @@ class Embedbug{
 
 	*/
 
-
+	
 	function GetInfo($url=null, $key=null){
-		
-		$const = 'CURLINFO_'.trim(strtoupper(str_replace(' ', '_', $key)));
+
 		$curl_const = null;
+
+		if(is_string($key)){
+			$curl_const = 'CURLINFO_'.trim(strtoupper(str_replace(' ', '_', $key)));
+		}
+		else if(is_array($key)){
+			$curl_const = array();
+			foreach($key as $k){
+				$curl_const[] = 'CURLINFO_'.trim(strtoupper(str_replace(' ', '_', $k)));
+			}
+		}
+		
+		
 		$content = array();
+		
 
-		if(defined($curl_const)){ 
+		// normalize url list. Match $url to either a string or array passed
+		// to the constructor. Otherwise, take everything.
+
+		if(is_string($url) && array_key_exists($url, $this->Curl)){
+
+			// currently broken here
+
+			if(is_string($curl_const)){ 
+				if(!empty($curl_const) && defined($curl_const)){ 
+					return curl_getinfo($this->Curl[ $url ], constant($curl_const));
+				}
+				else{
+					return curl_getinfo($this->Curl[$url]);
+				}
+			}
 			
-			/* if url was passed as an array, get the settings from those urls */
-			if(is_array($url)){
-				
-				foreach($url as $u){
-					$content[] = curl_getinfo($this->Curl[ $u ], $curl_const);
-				}
-				
-				return $content;
-			}
-
-			else if(is_string($url)){ // single url passed
-				return curl_getinfo($this->Curl[ $url ]);
-			}
-
-			/* if url is null, get everything */
-			else if(is_null($url)){
-				
-				if(is_array($this->url)){ // multiple urls were passed to the constructor
-					
-					foreach($this->url as $u){
-						$content[] = curl_getinfo($this->Curl[ $u ], $curl_const);
+			else if(is_array($curl_const)){
+				foreach($curl_const as $c){
+					if(!empty($c) && defined($c)){
+						$content[] =curl_getinfo($this->Curl[ $url ], constant($c));
 					}
-
-					return $content;
 				}
 
-				else if(is_string($this->url)){ // a single url was passed to the constructor
-					return curl_getinfo($this->Curl[ $u ], $curl_const);
-				}	
+				return $content;	
+			}
+			
+			return curl_getinfo($this->Curl[ $url ]); // no constant - return all data
+		}
+
+
+
+		// url is array, take the intersection
+		else if(is_array($url)){
+			
+			$filtered_urls = array_intersect($url, $this->urls);
+
+			if(count($filtered_urls)){
+
+				foreach($filtered_urls as $filtered_url){
+
+					if(is_string($curl_const)){ 
+						if(!empty($curl_const) && defined($curl_const)){ 
+							$content[] = curl_getinfo($this->Curl[ $filtered_url ], constant($curl_const));
+						}
+						else{
+							$content[] = curl_getinfo($this->Curl[$filtered_url]);
+						}
+					}
+					
+					else if(is_array($curl_const)){
+						foreach($curl_const as $c){
+							if(!empty($c) && defined($c)){
+								$content[] =curl_getinfo($this->Curl[ $url ], constant($c));
+							}
+						}
+					}
+				}
+
+				return $content;
 			}
 		}
 
+		// url was not passed, take everything.
+
+		else if(is_string($this->urls)){ // as a string
+			if(!empty($curl_const) && defined($curl_const)){ 
+				return curl_getinfo($this->Curl[ $this->urls ], constant($curl_const));
+			}
+			else{
+				return curl_getinfo($this->Curl[ $this->urls ]);
+			}
+		}
+		
+		else if(is_array($this->urls)){ // as an array
+			foreach($this->urls as $url){
+				if(!empty($curl_const) && defined($curl_const)){ 
+					$content[] = curl_getinfo($this->Curl[ $url ], constant($curl_const));
+				}
+				else{
+					$content[] = curl_getinfo($this->Curl[ $url ]);
+				}
+			}
+			return $content;
+		}
+
 		return null;
+
 	}
 
 
@@ -236,7 +295,6 @@ class Embedbug{
             	$content=null;
             }
 
-
             // if the terminator string exists, end. 
             if($ref->TerminateAtString($string)){
                 return -1;
@@ -268,28 +326,41 @@ class Embedbug{
         }while($flag > 0);
     }
 
-    /* extract html tags and content from a previously taken url. */
+    /* extract html tags and content from a previously taken url.
+    needs to handle $url as null and $url as an array
+    and $tags as a string */
 
-    function ExtractTags($url, array $tags){
+    function ExtractTags($url = null, array $tags){
+
+    	$content = array();
+
+    	if($url === null){
+    		$url = $this->urls;
+    	}
+
+    	if(is_array($url)){
+    		
+    		foreach($url as $u){
+    			$content[$u] = $this->ExtractTags($u, $tags);
+    		}
+
+    		return $content;
+    	}
 
     	if($contentArray = $this->GetContent($url, 'content')){ 
-    		
-    		$content=implode(null, $contentArray);
+
+    		$content=$this->multi_implode($contentArray, null);
 
 		    $extracted = array();
 
-		    libxml_use_internal_errors(true);
-		    libxml_clear_errors();
-
-		    $doc = new \DOMDocument();
-		    $doc->loadHTML($content);
-		    $xpath = new \DOMXPath($doc);            
+       		$this->doc->loadHTML($content);
+		    $this->xpath = new \DOMXPath($this->doc);    
 
 		    foreach($tags as $tag){
 
 		        $extracted[$tag] = array();
 
-		         $tagset = $xpath->query("//$tag");
+		        $tagset = $this->xpath->query("//$tag");
 
 		        if($tagset->length > 0){
 
@@ -320,13 +391,12 @@ class Embedbug{
 		            $tagarray = array();
 		            
 		            if(preg_match("#<meta([^>]*)>#si", $content, $matches)){
+		                
 		                //$matches[1] is what stores the contents of the meta tag
 		                $matches[1] = str_replace("/", '', $matches[1]);
 
 		                // put each attribute and its value into an array
 		                $attrs = preg_split("#(\"\s)#i", trim($matches[1]));
-
-		                //die(var_dump($attrs));
 
 		                if(count($attrs)){ 
 
@@ -349,6 +419,144 @@ class Embedbug{
 		}
 
 		return null;
+	}
+
+	function multi_implode($array, $glue) {
+    	
+    	$ret = '';
+
+	    foreach ($array as $item) {
+	        if (is_array($item)) {
+	            $ret .= $this->multi_implode($item, $glue) . $glue;
+	        } else {
+	            $ret .= $item . $glue;
+	        }
+	    }
+
+	   // $ret = substr($ret, 0, 0-strlen($glue));
+
+	    return $ret;
+	}
+
+	/* format the current urls into a "feed", as an array.
+	Each index of the array will be a url, which will
+	be an array of values for that site. Possible values
+	will be
+
+	link
+	title
+	type
+	author
+	post_id
+	pub_date
+	section
+	tags[]
+	image_url
+
+	However at the very least you may end up with an empty
+	array even if the site has metadata - in which case
+	there will only be the site url to work with. 
+	*/
+
+	function ExtractFeed(){
+		
+		$Feed = array();
+		
+		if($AllMeta = $this->ExtractTags(null, array('meta','title'))){
+
+	    	// format into a nice thing. 
+	    	// this works, except it needs indices for each url. 
+	    	foreach($AllMeta as $key=>$val){
+	    		
+	    		$Parse = array();
+	    		$URL = $key;
+
+	    		// if there's still no title, see if the title tag exists
+
+		    	if(isset($AllMeta[$key]['title']) && count($AllMeta[$key]['title'])){
+		    		
+		    		if(array_key_exists('textcontent', $AllMeta[$key]['title'][0])){ 
+		    			$Parse['title'] = strtok($AllMeta[$key]['title'][0]['textcontent'], "\n");
+		    		}			
+		    	}
+
+	    		foreach($AllMeta[$key]['meta'] as $Meta){
+
+		    		if(array_key_exists('name', $Meta)){
+
+		    			if(array_key_exists('content', $Meta)){ 
+		    				
+		    				$content = trim($Meta['content']);
+		    			
+			    			switch(strtolower($Meta['name'])){
+			    				case "description" : $Parse['description'] = $content; break;
+			    				case "title"       : $Parse['title']       = $content; break;
+			    				case "author"      : $Parse['author']      = $content; break;
+			    			}
+
+			    			// replace with parsely JSON if it exists
+			    			if($Meta['name'] === 'parsely-page'){
+			    				
+			    				$json = json_decode($content, true);
+
+			    				foreach($json as $key=>$val){
+			    					$Parse[$key] = $val;
+			    				}
+							}
+						}
+
+		    		}
+		    		
+		    		/* look for open graph and twitter tags. Overwrite the parse array with those. */
+
+		    		if(array_key_exists('property', $Meta)){
+
+		    			$prop = trim($Meta['property']);
+
+		    			if(array_key_exists('content', $Meta)){ 
+			    			
+			    			$content = trim($Meta['content']);
+			    			
+			    			if(substr($prop, 0, 8) === 'twitter:'){ // twitter tags
+			    				switch($prop){
+			    					case "twitter:creator" 		: $Parse['twitter']     = $content; break;
+			    					case "twitter:url" 			: $Parse['link']   		= $content; break;
+			    					case "twitter:title" 		: $Parse['title']   	= $content; break;
+			    					case "twitter:description" 	: $Parse['description'] = $content; break;
+			    					case "twitter:image"        : $Parse['image_url']   = $content; break;
+			      				}
+			    			}
+
+			    			if(substr($prop, 0, 3) === 'fb:'){ // an open graph tag
+
+			    				switch($prop){
+			    					case "fb:image"		  : $Parse['image_url']   = $content; break;
+			    					case "fb:title"		  : $Parse['title'] 	  = $content; break;
+			    					case "fb:url"  		  : $Parse['link'] 		  = $content; break;
+			    					case "fb:site_name"   : $Parse['site_name']   = $content; break;
+			    					case "fb:type"        : $Parse['type']        = $content; break;
+			    					case "fb:description" : $Parse['description'] = $content; break;
+			      				}
+			    			}
+
+			    			
+			    			if(substr($prop, 0, 8) === 'article:'){// replace 'article:' content
+			    				switch($prop){
+			    					case "article:author"		  : $Parse['author']         = $content; break;
+			    					case "article:published_time" : $Parse['published_time'] = $content; break;
+			    				}
+			    			}
+			    		}
+		    		}
+
+
+		    	}// end foreach
+		    	
+		    	$Feed[ $URL ] = $Parse;
+		    }
+    	}
+
+    	return $Feed;
 	}
 
 }
