@@ -349,7 +349,7 @@ class EmbedBug{
 
     	if($contentArray = $this->GetContent($url, 'content')){ 
 
-    		$content=$this->multi_implode($contentArray, null);
+    		$content=$this->multi_implode($contentArray, "");
 
 		    $extracted = array();
 
@@ -427,13 +427,15 @@ class EmbedBug{
 
 	    foreach ($array as $item) {
 	        if (is_array($item)) {
-	            $ret .= $this->multi_implode($item, $glue) . $glue;
+	            $ret .= $this->multi_implode($item, $glue);
 	        } else {
 	            $ret .= $item . $glue;
 	        }
 	    }
 
-	   // $ret = substr($ret, 0, 0-strlen($glue));
+	  
+	   	//$ret = substr($ret, 0, 0-strlen($glue));
+	   	
 
 	    return $ret;
 	}

@@ -3,9 +3,35 @@
 <head>
 <meta charset="utf-8">
 </head>
+<style type="text/css">
+body{
+	font-family:"Ubuntu sans", Tahoma, sans-serif;
+	font-size:12pt;
+	line-height:150%;
 
+}
+LI{
+	list-style-type:none;
+	display:block;
+	margin-bottom:1em;
+}
+
+li img{
+	display:inline;
+	float:left;
+	margin-right:0.5em;
+}
+
+a{
+	text-decoration:none;
+}
+
+</style>
 <body>
-<pre>
+example (very primitive "feed", parsing a group of urls... in this case, whatever happens to be on the front page of
+hacker news.) I currently find myself twitchy and sleep-deprived so if I were you I would not even think about putting
+this into production.
+
 <?php
 
 require_once(realpath("../src/EmbedBug/EmbedBug.php"));
@@ -102,9 +128,57 @@ if(count($HNLinks) && array_key_exists('a', $HNLinks)){
 
     $Feed = $EmbedBug->ExtractFeed();
 
-    echo print_r($Feed);
+    if(count($Feed)){
+
+    	?><UL><?php
+   
+	    foreach($Feed as $Item=>$Values){
+
+		    ?><LI><?php
+	    		if(array_key_exists('image_url', $Values)){
+	    			?><img src="<?php echo htmlspecialchars($Values['image_url']);?>" width="100"><?php
+	    		}
+		    ?>
+	    	<a href="<?php echo htmlspecialchars($Item); ?>">
+
+	    	<?php
+
+    		if(array_key_exists('title', $Values)){
+    			echo htmlspecialchars($Values['title']);
+    		}
+    		else{
+    			echo htmlspecialchars($Item);
+    		}
+	    	?></a> (<?php
+	    		$u = parse_url($Item);
+	    		echo htmlspecialchars($u['host']);
+	    	?>) <?php
+	    	if(array_key_exists('description', $Values)){
+	    		?><div><?php
+	    		echo substr(htmlspecialchars($Values['description']), 0, 255);
+	    		if(array_key_exists('author', $Values)){
+	    			?> <UL><LI>-- by <?php echo htmlspecialchars($Values['author']);
+	    			if(array_key_exists('twitter', $Values)){
+	    				?>(<a href="twitter.com/<?php 
+	    					echo substr(htmlspecialchars($Values['twitter']), 1);
+	    				?>"><?php
+	    				echo htmlspecialchars($Values['twitter']);
+	    				?></a> )</LI></UL> <?php
+	    			}
+	    		}
+
+	    		?></div>
+	    		<?php
+	    	}
+	    	?>
+	    	</LI><?php
+	    }
+
+	    ?></UL><?php
+
+     }
 }
 ?>
-</pre>
+
 </body>
 </html>
