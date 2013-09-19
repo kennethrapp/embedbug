@@ -129,24 +129,23 @@ if(count($HNLinks) && array_key_exists('a', $HNLinks)){
     $Feed = $EmbedBug->ExtractFeed();
 
     if(count($Feed)){
-
+    	
+    	file_put_contents("feed.json", json_encode($Feed));
+    	
     	?><UL><?php
-   
+	    
 	    foreach($Feed as $Item=>$Values){
-
+		    
 		    ?><LI><?php
 
-	    		if(array_key_exists('image_url', $Values)){
-	    			?><img src="<?php echo htmlspecialchars($Values['image_url']);?>" width="100"><?php
-	    		}
-
-	    		if(array_key_exists('type', $Values)){ 
-	    			echo htmlspecialchars($Values['type']).": ";
-	    		}
-		    ?>
-	    	<a href="<?php echo htmlspecialchars($Item); ?>">
-
-	    	<?php
+    		if(array_key_exists('image_url', $Values)){
+    			?><img src="<?php echo htmlspecialchars($Values['image_url']);?>" width="100"><?php
+    		}
+    		if(array_key_exists('type', $Values)){ 
+    			echo htmlspecialchars($Values['type']).": ";
+    		}
+		    
+		    ?><a href="<?php echo htmlspecialchars($Item); ?>"><?php
 
     		if(array_key_exists('title', $Values)){
     			echo htmlspecialchars($Values['title']);
@@ -155,24 +154,38 @@ if(count($HNLinks) && array_key_exists('a', $HNLinks)){
     			echo htmlspecialchars($Item);
     		}
 	    	?></a> (<?php
+	    		
 	    		$u = parse_url($Item);
 	    		echo htmlspecialchars($u['host']);
-	    		
+	    	
 	    	?>) <?php
+	    	
 	    	if(array_key_exists('description', $Values)){
+	    		
 	    		?><div><?php
+
 	    		echo substr(htmlspecialchars($Values['description']), 0, 255);
+	    		
 	    		if(array_key_exists('author', $Values)){
-	    			?> <UL><LI>-- by <?php echo htmlspecialchars($Values['author']);
+	    			
+	    			?><UL><LI>-- by <?php 
+
+	    			echo htmlspecialchars($Values['author']);
+	    			
 	    			if(array_key_exists('twitter', $Values)){
+	    				
 	    				?>(<a href="twitter.com/<?php 
-	    					echo substr(htmlspecialchars($Values['twitter']), 1);
-	    				?>"><?php
-	    				echo htmlspecialchars($Values['twitter']);
-	    				?></a> )
-	    				<?php
+	    					
+	    				echo substr(htmlspecialchars($Values['twitter']), 1);
+	    				
+	    				?>"><?php echo htmlspecialchars($Values['twitter']); 
+
+	    				?></a> ) <?php
+
 	    				if(array_key_exists('keywords', $Values)){
+
 	    					?><div><small><?php
+
 	    					if(is_array($Values['keywords'])){
 	    						echo htmlspecialchars(implode(",", $Values['keywords']));
 	    					}
@@ -180,21 +193,15 @@ if(count($HNLinks) && array_key_exists('a', $HNLinks)){
 	    						echo htmlspecialchars($Values['keywords']);
 	    					}
 	    				}
-	    				?></small></div>
-	    				</LI></UL> <?php
+	    				?></small></div></LI></UL><?php
 	    			}
 	    		}
-
-	    		?></div>
-	    		<?php
+	    		?></div><?php
 	    	}
-	    	?>
-	    	</LI><?php
+	    	?></LI><?php
 	    }
-
 	    ?></UL><?php
-
-     }
+    }
 }
 ?>
 

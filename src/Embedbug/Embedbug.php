@@ -274,7 +274,8 @@ class EmbedBug{
         }
 
         // store the headers 
-        $this->CurlOpt($cUrl, 'headerfunction',  function($ch, $header) use($url, $ref){        
+        $this->CurlOpt($cUrl, 'headerfunction',  function($ch, $header) use($url, $ref){    
+        	if($ref->GetInfo($url, 'http code') !== 200) return -1;     
             $ref->SetContent($url,'headers', $header);    
       	    return strlen($header);
         });
@@ -284,7 +285,9 @@ class EmbedBug{
        	indicated may be taken, based on the buffersize setting passed to the
        	constructor. */
 
- 		$this->CurlOpt($cUrl, 'writefunction', function($ch, $string) use($url, $ref){    
+ 		$this->CurlOpt($cUrl, 'writefunction', function($ch, $string) use($url, $ref){
+
+ 			if($ref->GetInfo($url, 'http code') !== 200) return -1;    
 
  			// write or append to the current content
             if($content = $ref->GetContent($url, 'content')){
@@ -427,15 +430,11 @@ class EmbedBug{
 
 	    foreach ($array as $item) {
 	        if (is_array($item)) {
-	            $ret .= $this->multi_implode($item, $glue);
+	            $ret .= $this->multi_implode(array_values($item), $glue);
 	        } else {
 	            $ret .= $item . $glue;
 	        }
 	    }
-
-	  
-	   	//$ret = substr($ret, 0, 0-strlen($glue));
-	   	
 
 	    return $ret;
 	}
@@ -464,28 +463,34 @@ class EmbedBug{
 		
 		$Feed = array();
 		
+		/* I think the 'title' extract may be broken. It needs to ensure that
+		it has the entire tag including the end tag. one particular url
+		(twilio) somehow ends up with javascript in its title. */
+
 		if($AllMeta = $this->ExtractTags(null, array('meta','title'))){
 
 	    	// format into a nice thing. 
 	    	// this works, except it needs indices for each url. 
 	    	foreach($AllMeta as $key=>$val){
+
+	    		$code = $this->GetInfo($key, 'http code');
+
+	    		if((int)$code !== 200){
+	    			continue;
+	    		}
 	    		
 	    		$Parse = array();
 	    		$URL = $key;
 
 	    		// if there's still no title, see if the title tag exists
-
-		    	if(isset($AllMeta[$key]['title']) && count($AllMeta[$key]['title'])){
-		    		
+		    	if(isset($AllMeta[$key]['title']) && count($AllMeta[$key]['title'])){	
 		    		if(array_key_exists('textcontent', $AllMeta[$key]['title'][0])){ 
 		    			$Parse['title'] = $AllMeta[$key]['title'][0]['textcontent'];
 		    		}			
 		    	}
 
 	    		foreach($AllMeta[$key]['meta'] as $Meta){
-
 		    		if(array_key_exists('name', $Meta)){
-
 		    			if(array_key_exists('content', $Meta)){ 
 		    				
 		    				$content = trim($Meta['content']);
@@ -511,7 +516,6 @@ class EmbedBug{
 			    				}
 							}
 						}
-
 		    		}
 		    		
 		    		/* look for open graph and twitter tags. Overwrite the parse array with those. */
@@ -546,7 +550,6 @@ class EmbedBug{
 			    					case "og:type"        : $Parse['type']        = $content; break;
 			    					case "og:description" : $Parse['description'] = $content; break;
 			      				}
-			    			
 			    			}
 
 			    			
@@ -559,8 +562,6 @@ class EmbedBug{
 			    			}
 			    		}
 		    		}
-
-
 		    	}// end foreach
 		    	
 		    	$Feed[ $URL ] = $Parse;
@@ -571,17 +572,14 @@ class EmbedBug{
 	}
 
 	function Finalize($array){
-
-		foreach($array as $value){
-			if(is_array($value)){
-				$value = $this->Finalize($value);
+		foreach($array as $key=>$val){
+			if(is_array($val)){
+				$array[$key] = $this->Finalize($val);
 			}
 			else{
-				$value =  trim( utf8_decode( preg_replace('/[^(\x20-\x7F)]*/', '', $value) ) );
+				$array[$key] =  trim( utf8_decode( preg_replace('/[^(\x20-\x7F)]*/', '', $val) ) );
 			}
 		}
-
 		return $array;
 	}
-
 }
