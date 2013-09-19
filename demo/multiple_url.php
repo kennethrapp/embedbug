@@ -57,12 +57,9 @@ $EmbedBug->execute();
 
 $HNLinks = $EmbedBug->ExtractTags($HNews, array('a'));
 
-
-//echo print_r($HNLinks,true);
-
 /* collect the hrefs for out bound links and pass back to EmbedBug. */
-$HNOutboundLinks = array();
 
+$HNOutboundLinks = array();
 
 if(count($HNLinks) && array_key_exists('a', $HNLinks)){ 
 
@@ -139,7 +136,7 @@ if(count($HNLinks) && array_key_exists('a', $HNLinks)){
 		    ?><LI><?php
 
     		if(array_key_exists('image_url', $Values)){
-    			?><img src="<?php echo htmlspecialchars($Values['image_url']);?>" width="100"><?php
+    			?><img src="<?php echo htmlspecialchars($Values['image_url']);?>" style="max-width:100px"><?php
     		}
     		if(array_key_exists('type', $Values)){ 
     			echo htmlspecialchars($Values['type']).": ";
@@ -178,9 +175,9 @@ if(count($HNLinks) && array_key_exists('a', $HNLinks)){
 	    					
 	    				echo substr(htmlspecialchars($Values['twitter']), 1);
 	    				
-	    				?>"><?php echo htmlspecialchars($Values['twitter']); 
+	    				?>"><?php echo htmlspecialchars($Values['twitter']); ?></a> ) 
 
-	    				?></a> ) <?php
+	    				<?php
 
 	    				if(array_key_exists('keywords', $Values)){
 

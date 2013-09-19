@@ -287,26 +287,16 @@ class EmbedBug{
 
  		$this->CurlOpt($cUrl, 'writefunction', function($ch, $string) use($url, $ref){
 
+ 			// if the code isn't 200, abort.
  			if($ref->GetInfo($url, 'http code') !== 200) return -1;    
 
- 			// write or append to the current content
-            if($content = $ref->GetContent($url, 'content')){
-            	$ref->SetContent($url,'content',  ($content.$string)); 
-            }
-            else{
-            	$ref->SetContent($url,'content', $string); 
-            	$content=null;
-            }
-
-            // if the terminator string exists, end. 
-            if($ref->TerminateAtString($string)){
-                return -1;
-            }
-
+          	// if the terminator string exists, end. 
+            if($ref->TerminateAtString($string)) return -1;
+            
         	// if the size limit has been reached, end.
-            if($ref->TerminateAtLength(strlen($string))){
-                return -1;
-            }
+            if($ref->TerminateAtLength(strlen($string))) return -1;
+            
+ 			$ref->SetContent($url,'content',  ($string)); 
 
             return strlen($string);
         }); 
