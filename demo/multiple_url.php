@@ -135,8 +135,13 @@ if(count($HNLinks) && array_key_exists('a', $HNLinks)){
 	    foreach($Feed as $Item=>$Values){
 
 		    ?><LI><?php
+
 	    		if(array_key_exists('image_url', $Values)){
 	    			?><img src="<?php echo htmlspecialchars($Values['image_url']);?>" width="100"><?php
+	    		}
+
+	    		if(array_key_exists('type', $Values)){ 
+	    			echo htmlspecialchars($Values['type']).": ";
 	    		}
 		    ?>
 	    	<a href="<?php echo htmlspecialchars($Item); ?>">
@@ -152,6 +157,7 @@ if(count($HNLinks) && array_key_exists('a', $HNLinks)){
 	    	?></a> (<?php
 	    		$u = parse_url($Item);
 	    		echo htmlspecialchars($u['host']);
+	    		
 	    	?>) <?php
 	    	if(array_key_exists('description', $Values)){
 	    		?><div><?php

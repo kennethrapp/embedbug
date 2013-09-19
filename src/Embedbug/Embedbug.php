@@ -489,13 +489,15 @@ class EmbedBug{
 		    			if(array_key_exists('content', $Meta)){ 
 		    				
 		    				$content = trim($Meta['content']);
-		    			
-			    			switch(strtolower($Meta['name'])){
-			    				case "description" : $Parse['description'] = $content; break;
-			    				case "title"       : $Parse['title']       = $content; break;
-			    				case "author"      : $Parse['author']      = $content; break;
-			    				case "keywords"    : $Parse['keywords']    = explode(",", $content); break;
-			    			}
+		    				
+		    				if(is_string($content)){ 
+				    			switch(strtolower($Meta['name'])){
+				    				case "description" : $Parse['description'] = $content; break;
+				    				case "title"       : $Parse['title']       = $content; break;
+				    				case "author"      : $Parse['author']      = $content; break;
+				    				case "keywords"    : $Parse['keywords']    = explode(",", $content); break;
+				    			}
+				    		}
 
 			    			// replace with parsely JSON if it exists
 			    			if($Meta['name'] === 'parsely-page'){
@@ -503,7 +505,9 @@ class EmbedBug{
 			    				$json = json_decode($content, true);
 
 			    				foreach($json as $key=>$val){
-			    					$Parse[$key] = $val;
+			    					if(is_string($val) && trim($val)){ 
+			    						$Parse[$key] = $val;
+			    					}
 			    				}
 							}
 						}
@@ -520,7 +524,7 @@ class EmbedBug{
 			    			
 			    			$content = trim($Meta['content']);
 			    			
-			    			if(stripos($prop,'twitter:') !== false){ // twitter tags
+			    			if(is_string($content) && (stripos($prop,'twitter:') !== false)){ // twitter tags
 			    				
 			    				switch($prop){
 			    					case "twitter:creator" 		: $Parse['twitter']     = $content; break;
@@ -532,7 +536,7 @@ class EmbedBug{
 			    			
 			    			}
 
-			    			if(stripos($prop,'og:') !== false){ // an open graph tag
+			    			if(is_string($content) && (stripos($prop,'og:') !== false)){ // an open graph tag
 			    				
 			    				switch($prop){
 			    					case "og:image"		  : $Parse['image_url']   = $content; break;
@@ -546,7 +550,7 @@ class EmbedBug{
 			    			}
 
 			    			
-			    			if(stripos($prop,'article:') !== false){// replace 'article:' content
+			    			if(is_string($content) && (stripos($prop,'article:') !== false)){// replace 'article:' content
 			    			
 			    				switch($prop){
 			    					case "article:author"		  : $Parse['author']         = $content; break;
