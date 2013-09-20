@@ -161,7 +161,7 @@ if(count($HNLinks) && array_key_exists('a', $HNLinks)){
 	    		
 	    		?><div><?php
 
-	    		echo substr(htmlspecialchars($Values['description']), 0, 255);
+	    		echo excerpt($Values['description']);
 	    		
 	    		if(array_key_exists('author', $Values)){
 	    			
@@ -178,10 +178,15 @@ if(count($HNLinks) && array_key_exists('a', $HNLinks)){
 	    				?>"><?php echo htmlspecialchars($Values['twitter']); ?></a> ) 
 
 	    				<?php
+	    				if(array_key_exists('copyright', $Values)){
+	    					?> Copyright: <?php echo htmlspecialchars($Values['copyright']);
+	    				}
 
+						// these seem not to be showing up even when i know they exist
 	    				if(array_key_exists('keywords', $Values)){
 
 	    					?><div><small><?php
+
 
 	    					if(is_array($Values['keywords'])){
 	    						echo htmlspecialchars(implode(",", $Values['keywords']));
@@ -200,6 +205,36 @@ if(count($HNLinks) && array_key_exists('a', $HNLinks)){
 	    ?></UL><?php
     }
 }
+
+/* with string $text, limit to at least $limit words (separated by condensed spaces), and then
+    limit again by $limit chars chars. Add an ellipsis if necessary. */
+function excerpt($text, $limit_words = 50, $limit_chars = 150){
+	
+	if(is_string($text)){
+	
+		$text = str_replace("\s+", "\s", $text); // flatten spaces
+ 		
+		// if it (still) has spaces, trim and limit by words
+		if(str_word_count($text, 0) >= $limit_words){
+			$text = implode(" ", array_slice(explode(" ", $text), 0, $limit_words));
+		}
+		
+		// limit again by characters, so someone can't flood using a single giant book-length word.
+		if(strlen($text) >= $limit_chars){	
+			$text = substr($text, 0, $limit_chars);
+			
+			// pop the last word in case we cut it off...
+			if ($words = explode(" ", $text)){
+				array_pop($words);
+				$text = implode(" ", $words);
+				$text = $text." (...) ";
+			}
+		}
+	}
+	
+	return trim($text);
+}
+
 ?>
 
 </body>

@@ -73,9 +73,9 @@ class EmbedBug{
 			$this->Content[$url][$key] = array();
 		}
 
-		if(preg_replace('/\s+/','',$val)){ 
-			$this->Content[$url][$key][] = trim($val);
-		}
+		
+		$this->Content[$url][$key][] = $val;
+		
 	}
 
 	/* retrieve a content group */
@@ -274,10 +274,14 @@ class EmbedBug{
         }
 
         // store the headers 
-        $this->CurlOpt($cUrl, 'headerfunction',  function($ch, $header) use($url, $ref){    
+        $this->CurlOpt($cUrl, 'headerfunction',  function($ch, $header) use($url, $ref){   
+
         	if($ref->GetInfo($url, 'http code') !== 200) return -1;     
+            
             $ref->SetContent($url,'headers', $header);    
+      	    
       	    return strlen($header);
+        
         });
 
        	/* store the content. 
@@ -491,6 +495,7 @@ class EmbedBug{
 				    				case "title"       : $Parse['title']       = $content; break;
 				    				case "author"      : $Parse['author']      = $content; break;
 				    				case "keywords"    : $Parse['keywords']    = explode(",", $content); break;
+				    				case "copyright"   : $Parse['copyright']   = $content; break;
 				    			}
 				    		}
 
