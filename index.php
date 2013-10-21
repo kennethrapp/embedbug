@@ -122,7 +122,11 @@ if(count($Links) && array_key_exists('a', $Links)){
     	?><UL><?php
 	    foreach($Feed as $Item=>$Values){
 		    
-		    ?><LI><?php
+		    ?><LI>
+			
+			<a href="?url=<?php echo htmlspecialchars($Item); ?>"> [+] </a>
+			
+			<?php
 		    /* images are slow and stupid*/
     		if(array_key_exists('image_url', $Values)){
     			?><img src="<?php echo htmlspecialchars($Values['image_url']);?>" style="max-width:100px"><?php
