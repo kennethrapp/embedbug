@@ -8,14 +8,13 @@
 </style>
 <body>
 
-<h1>EmbedBug</h1>
-
 <form>
 	<input type="text" size="50" name="url" value="https://news.ycombinator.com/news">
 	<input type="submit">
 </form>
 
 <?php
+$time = microtime(true); // Gets microseconds
 
 require_once(realpath("src/Embedbug/Embedbug.php"));
 
@@ -237,7 +236,15 @@ function excerpt($text, $limit_words = 50, $limit_chars = 150){
 	
 	return trim($text);
 }
+echo "Time Elapsed: ".(microtime(true) - $time)."s";
 
+function convert($size)
+ {
+    $unit=array('b','kb','mb','gb','tb','pb');
+    return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
+ }
+
+echo "Memory: " . convert(memory_get_usage(true)); // 123 kb
 ?>
 
 </body>
