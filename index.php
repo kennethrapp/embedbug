@@ -130,11 +130,11 @@ if(count($Links) && array_key_exists('a', $Links)){
 			<a href="?url=<?php echo htmlspecialchars($Item); ?>"> [+] </a>
 			
 			<?php
-		    /* images are slow and stupid*/
+		    /* images are slow and stupid
     		if(array_key_exists('image_url', $Values)){
     			?>
 				<img src="<?php echo htmlspecialchars($Values['image_url']);?>" style="max-width:100px"><?php
-    		} 
+    		} */
 
     		if(array_key_exists('type', $Values)){ 
     			echo htmlspecialchars($Values['type']).": ";
