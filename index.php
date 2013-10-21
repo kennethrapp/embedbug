@@ -26,6 +26,8 @@ if(!$url){
 	$url = array('url'=>"https://news.ycombinator.com/news");
 }
 
+?><h1><?php echo htmlspecialchars($url['url']); ?></h1><?php 
+
 $EmbedBug = new EmbedBug\EmbedBug(
 	
 	$url['url'],
@@ -62,14 +64,12 @@ if(count($Links) && array_key_exists('a', $Links)){
 				$url = parse_url($href);
 
 				// ignore inbound links
-				if(!stripos($url_parsed['host'], $url['host'])){ 
+				if(stripos($url['host'], $url_parsed['host']) === FALSE ){ 
 					$OutboundLinks[] = $href;
 				}
 			}
 		}
 	}
-
-	//echo print_r($OutboundLinks, true);
 
 	// this should be a Refeed method 
 
