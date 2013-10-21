@@ -435,7 +435,7 @@
 			"file": "demo/multiple_url.php",
 			"settings":
 			{
-				"buffer_size": 6355,
+				"buffer_size": 6204,
 				"line_ending": "Windows"
 			}
 		},
@@ -451,7 +451,7 @@
 			"file": "Boxfile",
 			"settings":
 			{
-				"buffer_size": 43,
+				"buffer_size": 121,
 				"line_ending": "Windows"
 			}
 		},
@@ -512,6 +512,7 @@
 	},
 	"file_history":
 	[
+		"/F/xampp/htdocs/kennethrapp/github/embedbug/demo/outbound_link_test.php",
 		"/F/xampp/htdocs/kennethrapp/github/embedbug/Boxfile",
 		"/F/xampp/htdocs/kennethrapp/github/embedbug/src/Embedbug/UrlFilters.php",
 		"/F/xampp/htdocs/kennethrapp/github/embedbug/demo/README.md",
@@ -638,8 +639,7 @@
 		"/F/xampp/htdocs/laravel4/project/public/js/main.js",
 		"/F/xampp/htdocs/laravel4/project/app/views/test.twig",
 		"/F/xampp/htdocs/laravel4/project/app/routes.php",
-		"/F/xampp/htdocs/laravel4/project/notes.txt",
-		"/F/xampp/htdocs/laravel4/project/server.php"
+		"/F/xampp/htdocs/laravel4/project/notes.txt"
 	],
 	"find":
 	{
@@ -658,6 +658,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"$HN",
 			"	    				\n",
 			"fb:",
 			"']);",
@@ -784,8 +785,7 @@
 			"master",
 			"file_exists",
 			"	\n",
-			"map",
-			"Twig"
+			"map"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -793,6 +793,7 @@
 		"regex": false,
 		"replace_history":
 		[
+			"$",
 			"og:",
 			"$url",
 			"$uri",
@@ -869,8 +870,8 @@
 						"selection":
 						[
 							[
-								13262,
-								13262
+								2775,
+								2775
 							]
 						],
 						"settings":
@@ -889,15 +890,15 @@
 					"file": "demo/multiple_url.php",
 					"settings":
 					{
-						"buffer_size": 6355,
+						"buffer_size": 6204,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								5273,
-								5273
+								297,
+								297
 							]
 						],
 						"settings":
@@ -906,7 +907,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 1218.0,
+						"translation.y": 221.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -923,8 +924,8 @@
 						"selection":
 						[
 							[
-								1631,
-								1631
+								133,
+								133
 							]
 						],
 						"settings":
@@ -932,7 +933,7 @@
 							"syntax": "Packages/PHP/PHP.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 252.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -942,15 +943,15 @@
 					"file": "Boxfile",
 					"settings":
 					{
-						"buffer_size": 43,
+						"buffer_size": 121,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								121,
+								121
 							]
 						],
 						"settings":
