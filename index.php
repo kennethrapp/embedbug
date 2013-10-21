@@ -27,7 +27,10 @@ if(!$url){
 }
 $url_parsed = parse_url($url['url']);
 
-?><h1><?php echo htmlspecialchars($url_parsed['host']); ?></h1><?php 
+?><h1><?php echo htmlspecialchars($url_parsed['host']); ?></h1>
+<a href="<?php echo htmlspecialchars($url['url']); ?>"> <?php echo htmlspecialchars($url['url']); ?> </a>
+<hr>
+<?php 
 
 $EmbedBug = new EmbedBug\EmbedBug(
 	
@@ -129,7 +132,8 @@ if(count($Links) && array_key_exists('a', $Links)){
 			<?php
 		    /* images are slow and stupid*/
     		if(array_key_exists('image_url', $Values)){
-    			?><img src="<?php echo htmlspecialchars($Values['image_url']);?>" style="max-width:100px"><?php
+    			?>
+				<img src="<?php echo htmlspecialchars($Values['image_url']);?>" style="max-width:100px"><?php
     		} 
 
     		if(array_key_exists('type', $Values)){ 
