@@ -18,17 +18,9 @@ $time = microtime(true); // Gets microseconds
 
 require_once(realpath("src/Embedbug/Embedbug.php"));
 
-/* 	test pulling a series of urls by scraping the frontpage of
-	hacker news and processing the outbound links... 
-
-	make this a GetOutboundLinks method*/
-
 $filter = array('url'=>array('filter'=>FILTER_VALIDATE_URL));
 
-
 $url = filter_input_array(INPUT_GET, $filter);
-
-
 
 if(!$url){
 	$url = array('url'=>"https://news.ycombinator.com/news");
@@ -236,6 +228,7 @@ function excerpt($text, $limit_words = 50, $limit_chars = 150){
 	
 	return trim($text);
 }
+?><hr><?php 
 echo "Time Elapsed: ".(microtime(true) - $time)."s";
 
 function convert($size)
@@ -244,7 +237,7 @@ function convert($size)
     return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
  }
 
-echo "Memory: " . convert(memory_get_usage(true)); // 123 kb
+echo " / Memory: " . convert(memory_get_usage(true)); // 123 kb
 ?>
 
 </body>
