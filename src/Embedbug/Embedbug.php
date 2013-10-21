@@ -4,6 +4,10 @@ require_once("uagent.php"); // randon user agent generator by Luka Pušić
 
 class EmbedBug{
 
+	/* there should be a url router which handles specific urls. Also the images are
+	incredibly large sometimes so there should be options to thumbnail locally or not
+	download at all. */
+
 	private $Content;
 	private $Curl;
 	private $handle;
@@ -36,7 +40,7 @@ class EmbedBug{
 	    	}
 	    
 	    }else if(filter_var($urls, FILTER_VALIDATE_URL) && !array_key_exists($urls, $this->Curl)){ 
-	        	$this->Curl[$urls] = $this->addHandle($urls, $settings, $this->handle);	
+	        $this->Curl[$urls] = $this->addHandle($urls, $settings, $this->handle);	
 	    }
 
 	    	libxml_use_internal_errors(true);
@@ -58,13 +62,12 @@ class EmbedBug{
     	return (is_string($this->terminate_string) && (stripos($content, $this->terminate_string) !== false));
     }
 
-    /* set content. */
+    /* set content. Content is grouped by url into 'headers'
+    ( an array of headers for each url), and 'content' ( a string 
+    	of content from each url) */
 
 	function SetContent($url, $key, $val){
 		
-		/* content will be grouped by url (node) into
-		   'headers', 'content', and 'info' */
-
 		if(!array_key_exists($url, $this->Content)){
 			$this->Content[$url] = array();
 		}
@@ -148,8 +151,6 @@ class EmbedBug{
 
 		if(is_string($url) && array_key_exists($url, $this->Curl)){
 
-			// currently broken here
-
 			if(is_string($curl_const)){ 
 				if(!empty($curl_const) && defined($curl_const)){ 
 					return curl_getinfo($this->Curl[ $url ], constant($curl_const));
@@ -172,9 +173,8 @@ class EmbedBug{
 			return curl_getinfo($this->Curl[ $url ]); // no constant - return all data
 		}
 
-
-
 		// url is array, take the intersection
+
 		else if(is_array($url)){
 			
 			$filtered_urls = array_intersect($url, $this->urls);
@@ -264,8 +264,8 @@ class EmbedBug{
         	'url'			=> $url,
         	'returntransfer'=> 1,
         	'header'		=> 1,
-        	//'connecttimeout'=> 5,
-        	//'timeout'		=> 15,
+        	'connecttimeout'=> 5,
+        	'timeout'		=> 15,
         	'useragent'	    => random_uagent() // select a random user agent by default
         ));
 
@@ -324,8 +324,9 @@ class EmbedBug{
     }
 
     /* extract html tags and content from a previously taken url.
-    needs to handle $url as null and $url as an array
-    and $tags as a string */
+
+    unknown if the option for url as null has actually
+    been tested yet. */
 
     function ExtractTags($url = null, array $tags){
 
@@ -402,7 +403,9 @@ class EmbedBug{
 		                   /* some unknown site is causing an exception because of its metadata
 		                   with explode. Later, I should replace explode with strtok */
 		                    @list($attr_name, $attr_value) = explode("=", $attr);
-		                // we create our meta array, trimming of any double quotes remaining in the attribute value string.
+		                	
+		                	// create our meta array, trimming of any double quotes 
+		                	// remaining in the attribute value string.
 		                    if(isset($attr_name, $attr_value)){ 
 		                        $tagarray[$attr_name] = trim($attr_value, '"');
 		                        $extracted[$tag][] = $tagarray;
@@ -418,6 +421,7 @@ class EmbedBug{
 		return null;
 	}
 
+	// multi-dimensional implode. 
 	function multi_implode($array, $glue) {
     	
     	$ret = '';
@@ -451,15 +455,13 @@ class EmbedBug{
 	However at the very least you may end up with an empty
 	array even if the site has metadata - in which case
 	there will only be the site url to work with. 
+
+	$defaults is an optional array with default values
 	*/
 
-	function ExtractFeed(){
+	function ExtractFeed($defaults = null){ 
 		
 		$Feed = array();
-		
-		/* I think the 'title' extract may be broken. It needs to ensure that
-		it has the entire tag including the end tag. one particular url
-		(twilio) somehow ends up with javascript in its title. */
 
 		if($AllMeta = $this->ExtractTags(null, array('meta','title'))){
 
@@ -477,19 +479,24 @@ class EmbedBug{
 	    		$URL = $key;
 
 	    		// if there's still no title, see if the title tag exists
-		    	if(isset($AllMeta[$key]['title']) && count($AllMeta[$key]['title'])){	
+		    	if(isset($AllMeta[$key]['title']) && count($AllMeta[$key]['title'])){
+
 		    		if(array_key_exists('textcontent', $AllMeta[$key]['title'][0])){ 
 		    			$Parse['title'] = $AllMeta[$key]['title'][0]['textcontent'];
 		    		}			
+		    	
 		    	}
 
 	    		foreach($AllMeta[$key]['meta'] as $Meta){
+
 		    		if(array_key_exists('name', $Meta)){
+		    			
 		    			if(array_key_exists('content', $Meta)){ 
 		    				
 		    				$content = trim($Meta['content']);
 		    				
-		    				if(is_string($content)){ 
+		    				if(is_string($content) && !empty($content)){ 
+
 				    			switch(strtolower($Meta['name'])){
 				    				case "description" : $Parse['description'] = $content; break;
 				    				case "title"       : $Parse['title']       = $content; break;
@@ -505,7 +512,8 @@ class EmbedBug{
 			    				$json = json_decode($content, true);
 
 			    				foreach($json as $key=>$val){
-			    					if(is_string($val) && trim($val)){ 
+
+			    					if(is_string($val) && !empty($val)){ 
 			    						$Parse[$key] = $val;
 			    					}
 			    				}
@@ -523,7 +531,8 @@ class EmbedBug{
 			    			
 			    			$content = trim($Meta['content']);
 			    			
-			    			if(is_string($content) && (stripos($prop,'twitter:') !== false)){ // twitter tags
+			    			if(is_string($content) && !empty($content) && (stripos($prop,'twitter:') !== false)){ 
+			    			// twitter tags
 			    				
 			    				switch($prop){
 			    					case "twitter:creator" 		: $Parse['twitter']     = $content; break;
@@ -558,12 +567,21 @@ class EmbedBug{
 			    		}
 		    		}
 		    	}// end foreach
+
+		    	// apply defaults to nonexistent or empty fields
+		    	if(is_array($defaults)){
+					foreach($defaults as $key=>$val){
+						if(!array_key_exists($key, $Parse) || empty($Parse[$key])){
+							$Parse[$key] = $defaults[$key];
+						}
+					}
+				}
 		    	
 		    	$Feed[ $URL ] = $Parse;
 		    }
     	}
 
-    	return $this->Finalize($Feed);
+    	return $this->Finalize($Feed, $defaults);
 	}
 
 	function Finalize($array){
@@ -572,9 +590,11 @@ class EmbedBug{
 				$array[$key] = $this->Finalize($val);
 			}
 			else{
-				$array[$key] =  trim( utf8_decode( preg_replace('/[^(\x20-\x7F)]*/', '', $val) ) );
+				$val = trim( utf8_decode( preg_replace('/[^(\x20-\x7F)]*/', '', $val) ) );
+				$array[$key] =  $val;
 			}
 		}
+		
 		return $array;
 	}
 }

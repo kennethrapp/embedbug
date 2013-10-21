@@ -4,46 +4,40 @@
 <meta charset="utf-8">
 </head>
 <style type="text/css">
-body{
-	font-family:"Ubuntu sans", Tahoma, sans-serif;
-	font-size:12pt;
-	line-height:150%;
-
-}
-LI{
-	list-style-type:none;
-	display:block;
-	margin-bottom:1em;
-}
-
-li img{
-	display:inline-block;
-	
-	margin-right:0.5em;
-}
-
-a{
-	text-decoration:none;
-}
 
 </style>
 <body>
-example (very primitive "feed", parsing a group of urls... in this case, whatever happens to be on the front page of
-hacker news.) I currently find myself twitchy and sleep-deprived so if I were you I would not even think about putting
-this into production.
+
+<h1>EmbedBug</h1>
+
+<form>
+	<input type="text" size="50" name="url" value="https://news.ycombinator.com/news">
+	<input type="submit">
+</form>
 
 <?php
 
 require_once(realpath("../src/EmbedBug/EmbedBug.php"));
 
 /* 	test pulling a series of urls by scraping the frontpage of
-	hacker news and processing the outbound links... */
+	hacker news and processing the outbound links... 
 
-$HNews = "https://news.ycombinator.com/news";
+	make this a GetOutboundLinks method*/
+
+$filter = array('url'=>array('filter'=>FILTER_VALIDATE_URL));
+
+
+$url = filter_input_array(INPUT_GET, $filter);
+
+
+
+if(!$url){
+	$url = array('url'=>"https://news.ycombinator.com/news");
+}
 
 $EmbedBug = new EmbedBug\EmbedBug(
 	
-	$HNews,
+	$url['url'],
 	
 	array(
         'binarytransfer' => 1,
@@ -55,15 +49,17 @@ $EmbedBug = new EmbedBug\EmbedBug(
 
 $EmbedBug->execute();
 
-$HNLinks = $EmbedBug->ExtractTags($HNews, array('a'));
+$Links = $EmbedBug->ExtractTags($url['url'], array('a'));
 
 /* collect the hrefs for out bound links and pass back to EmbedBug. */
 
-$HNOutboundLinks = array();
+$OutboundLinks = array();
 
-if(count($HNLinks) && array_key_exists('a', $HNLinks)){ 
+$url_parsed = parse_url($url['url']);
 
-	foreach($HNLinks['a'] as $link){
+if(count($Links) && array_key_exists('a', $Links)){ 
+
+	foreach($Links['a'] as $link){
 
 		if(array_key_exists('href', $link)){ 
 
@@ -74,21 +70,21 @@ if(count($HNLinks) && array_key_exists('a', $HNLinks)){
 				
 				$url = parse_url($href);
 
-				// remove links inside ycombinator
-				if($url['host'] !== 'ycombinator.com'){ 
-					$HNOutboundLinks[] = $href;
+				// ignore inbound links
+				if(!stripos($url_parsed['host'], $url['host'])){ 
+					$OutboundLinks[] = $href;
 				}
 			}
 		}
 	}
 
-	//echo print_r($HNOutboundLinks, true);
+	//echo print_r($OutboundLinks, true);
 
 	// this should be a Refeed method 
 
 	$EmbedBug = new EmbedBug\EmbedBug(
 		
-		$HNOutboundLinks,
+		$OutboundLinks,
 		
 		array(
 	        'binarytransfer' => 1,
@@ -108,22 +104,24 @@ if(count($HNLinks) && array_key_exists('a', $HNLinks)){
 	echo "all info from all urls: ".print_r($EmbedBug->GetInfo(), true);*/
 
 	/* test pulling curl info from a single string url (passes)
-	echo "all info from a single url".print_r($EmbedBug->GetInfo($HNOutboundLinks[0]), true); */
+	echo "all info from a single url".print_r($EmbedBug->GetInfo($OutboundLinks[0]), true); */
 
 	/* test with single string url, and a single key (passes - note: returns a string);
-	echo "single url and a single key (content type):".print_r($EmbedBug->GetInfo($HNOutboundLinks[0], 'content type'), true);*/
+	echo "single url and a single key (content type):".print_r($EmbedBug->GetInfo($OutboundLinks[0], 'content type'), true);*/
 
 	/* test with a string url and multiple keys (passes, although doesn't return the url, also the
 		keys are numeric, although this may prove difficult to fix. );
-	echo "single url and multiple keys (url, content type, http code, total time): ".print_r($EmbedBug->GetInfo($HNOutboundLinks[0], array('url', 'content type', 'http code', 'total time')), true);
+	echo "single url and multiple keys (url, content type, http code, total time): ".print_r($EmbedBug->GetInfo($OutboundLinks[0], array('url', 'content type', 'http code', 'total time')), true);
 */
 	/* test with multiple urls and a single key (passes) 
-    echo "multuple urls with a single key: (content type):".print_r($EmbedBug->GetInfo($HNOutboundLinks, 'content type'), true);*/
+    echo "multuple urls with a single key: (content type):".print_r($EmbedBug->GetInfo($OutboundLinks, 'content type'), true);*/
 
 
     /* extract meta tags from the urls. (ok - the array is indexed by site name, then numerically for each tag)*/
 
-    $Feed = $EmbedBug->ExtractFeed();
+    $Feed = $EmbedBug->ExtractFeed(array(
+    	"type" => "website"
+    ));
 
     if(count($Feed)){
     	
@@ -134,10 +132,12 @@ if(count($HNLinks) && array_key_exists('a', $HNLinks)){
 	    foreach($Feed as $Item=>$Values){
 		    
 		    ?><LI><?php
-
+		    
+		    /* images are slow and stupid
     		if(array_key_exists('image_url', $Values)){
     			?><img src="<?php echo htmlspecialchars($Values['image_url']);?>" style="max-width:100px"><?php
-    		}
+    		} */
+
     		if(array_key_exists('type', $Values)){ 
     			echo htmlspecialchars($Values['type']).": ";
     		}
@@ -150,6 +150,7 @@ if(count($HNLinks) && array_key_exists('a', $HNLinks)){
     		else{
     			echo htmlspecialchars($Item);
     		}
+	    	
 	    	?></a> (<?php
 	    		
 	    		$u = parse_url($Item);
@@ -186,15 +187,19 @@ if(count($HNLinks) && array_key_exists('a', $HNLinks)){
 	    				if(array_key_exists('keywords', $Values)){
 
 	    					?><div><small><?php
-
-
+	    					
 	    					if(is_array($Values['keywords'])){
+
 	    						echo htmlspecialchars(implode(",", $Values['keywords']));
+	    					
 	    					}
 	    					else{
+	    						
 	    						echo htmlspecialchars($Values['keywords']);
+	    					
 	    					}
 	    				}
+	    				
 	    				?></small></div></LI></UL><?php
 	    			}
 	    		}

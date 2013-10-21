@@ -427,7 +427,7 @@
 			"file": "src/Embedbug/EmbedBug.php",
 			"settings":
 			{
-				"buffer_size": 15443,
+				"buffer_size": 15942,
 				"line_ending": "Windows"
 			}
 		},
@@ -435,25 +435,8 @@
 			"file": "demo/multiple_url.php",
 			"settings":
 			{
-				"buffer_size": 6219,
+				"buffer_size": 6355,
 				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "demo/feed.json",
-			"settings":
-			{
-				"buffer_size": 12060,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "Boxfile",
-			"settings":
-			{
-				"buffer_size": 43,
-				"line_ending": "Windows",
-				"name": "php_version: 5.3.8"
 			}
 		},
 		{
@@ -465,26 +448,10 @@
 			}
 		},
 		{
-			"file": "demo/README.md",
+			"file": "Boxfile",
 			"settings":
 			{
-				"buffer_size": 396,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "demo/LICENSE.md",
-			"settings":
-			{
-				"buffer_size": 0,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "src/Embedbug/uagent.php",
-			"settings":
-			{
-				"buffer_size": 6174,
+				"buffer_size": 43,
 				"line_ending": "Windows"
 			}
 		},
@@ -493,6 +460,14 @@
 			"settings":
 			{
 				"buffer_size": 4343,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/F/xampp/htdocs/embedbug/hackernews.php",
+			"settings":
+			{
+				"buffer_size": 5557,
 				"line_ending": "Windows"
 			}
 		},
@@ -537,8 +512,13 @@
 	},
 	"file_history":
 	[
-		"/F/xampp/htdocs/embedbug/hackernews.php",
+		"/F/xampp/htdocs/kennethrapp/github/embedbug/Boxfile",
+		"/F/xampp/htdocs/kennethrapp/github/embedbug/src/Embedbug/UrlFilters.php",
+		"/F/xampp/htdocs/kennethrapp/github/embedbug/demo/README.md",
+		"/F/xampp/htdocs/kennethrapp/github/embedbug/demo/LICENSE.md",
+		"/F/xampp/htdocs/kennethrapp/github/embedbug/src/Embedbug/uagent.php",
 		"/F/xampp/htdocs/kennethrapp/github/embedbug/demo/feed.json",
+		"/F/xampp/htdocs/embedbug/hackernews.php",
 		"/F/xampp/htdocs/kennethrapp/github/embedbug/demo/demo_profiler.php",
 		"/F/xampp/htdocs/kennethrapp/github/embedbug/src/Embedbug/EmbedBug.php",
 		"/F/xampp/htdocs/embedbug/README.md",
@@ -659,12 +639,7 @@
 		"/F/xampp/htdocs/laravel4/project/app/views/test.twig",
 		"/F/xampp/htdocs/laravel4/project/app/routes.php",
 		"/F/xampp/htdocs/laravel4/project/notes.txt",
-		"/F/xampp/htdocs/laravel4/project/server.php",
-		"/F/xampp/htdocs/laravel4/project/install.bat",
-		"/F/xampp/htdocs/laravel4/project/composer.json",
-		"/F/xampp/htdocs/laravel4/project/app/database/seeds/urlTypes.php",
-		"/F/xampp/htdocs/laravel4/project/app/database/migrations/2013_05_02_055732_create_urltype_table.php",
-		"/F/xampp/htdocs/laravel4/project/app/database/seeds/users.php"
+		"/F/xampp/htdocs/laravel4/project/server.php"
 	],
 	"find":
 	{
@@ -683,6 +658,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"	    				\n",
 			"fb:",
 			"']);",
 			"Pušić",
@@ -809,8 +785,7 @@
 			"file_exists",
 			"	\n",
 			"map",
-			"Twig",
-			"new Route"
+			"Twig"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -887,15 +862,15 @@
 					"file": "src/Embedbug/EmbedBug.php",
 					"settings":
 					{
-						"buffer_size": 15443,
+						"buffer_size": 15942,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								170,
-								170
+								13262,
+								13262
 							]
 						],
 						"settings":
@@ -904,7 +879,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 1344.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -914,15 +889,15 @@
 					"file": "demo/multiple_url.php",
 					"settings":
 					{
-						"buffer_size": 6219,
+						"buffer_size": 6355,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1815,
-								1815
+								5273,
+								5273
 							]
 						],
 						"settings":
@@ -931,66 +906,13 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 924.0,
+						"translation.y": 1218.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 2,
-					"file": "demo/feed.json",
-					"settings":
-					{
-						"buffer_size": 12060,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JSON.tmLanguage"
-						},
-						"translation.x": 2227.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "Boxfile",
-					"settings":
-					{
-						"buffer_size": 43,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								43,
-								0
-							]
-						],
-						"settings":
-						{
-							"auto_name": "php_version: 5.3.8",
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 4,
 					"file": "demo/demo.php",
 					"settings":
 					{
@@ -1010,43 +932,17 @@
 							"syntax": "Packages/PHP/PHP.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 126.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "demo/README.md",
-					"settings":
-					{
-						"buffer_size": 396,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								310,
-								310
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Markdown/Markdown.tmLanguage"
-						},
-						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
-					"buffer": 6,
-					"file": "demo/LICENSE.md",
+					"buffer": 3,
+					"file": "Boxfile",
 					"settings":
 					{
-						"buffer_size": 0,
+						"buffer_size": 43,
 						"regions":
 						{
 						},
@@ -1059,7 +955,7 @@
 						],
 						"settings":
 						{
-							"syntax": "Packages/Markdown/Markdown.tmLanguage"
+							"syntax": "Packages/Text/Plain text.tmLanguage"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -1068,35 +964,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 7,
-					"file": "src/Embedbug/uagent.php",
-					"settings":
-					{
-						"buffer_size": 6174,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								121,
-								131
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/PHP/PHP.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 8,
+					"buffer": 4,
 					"file": "/F/xampp/htdocs/embedbug/lib/CurlMultiProcess.php",
 					"settings":
 					{
@@ -1124,7 +992,33 @@
 					"type": "text"
 				},
 				{
-					"buffer": 9,
+					"buffer": 5,
+					"file": "/F/xampp/htdocs/embedbug/hackernews.php",
+					"settings":
+					{
+						"buffer_size": 5557,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4384,
+								4425
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 1848.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 6,
 					"file": "/F/xampp/htdocs/embedbug/lib/funcs.php",
 					"settings":
 					{
@@ -1152,7 +1046,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 10,
+					"buffer": 7,
 					"file": "/F/xampp/htdocs/embedbug/lib/uagent.php",
 					"settings":
 					{
