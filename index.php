@@ -152,7 +152,7 @@ if(count($Links) && array_key_exists('a', $Links)){
 	    		
 	    		?><div><?php
 
-	    		echo excerpt($Values['description']);
+	    		echo excerpt(htmlspecialchars($Values['description']));
 	    		
 	    		if(array_key_exists('author', $Values)){
 	    			
