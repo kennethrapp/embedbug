@@ -17,7 +17,7 @@
 
 <?php
 
-require_once(realpath("../src/EmbedBug/EmbedBug.php"));
+require_once(realpath("../src/Embedbug/Embedbug.php"));
 
 /* 	test pulling a series of urls by scraping the frontpage of
 	hacker news and processing the outbound links... 
