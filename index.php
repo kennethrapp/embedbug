@@ -25,8 +25,9 @@ $url = filter_input_array(INPUT_GET, $filter);
 if(!$url){
 	$url = array('url'=>"https://news.ycombinator.com/news");
 }
+$url_parsed = parse_url($url['url']);
 
-?><h1><?php echo htmlspecialchars($url['url']); ?></h1><?php 
+?><h1><?php echo htmlspecialchars($url_parsed['host']); ?></h1><?php 
 
 $EmbedBug = new EmbedBug\EmbedBug(
 	
@@ -48,7 +49,7 @@ $Links = $EmbedBug->ExtractTags($url['url'], array('a'));
 
 $OutboundLinks = array();
 
-$url_parsed = parse_url($url['url']);
+
 
 if(count($Links) && array_key_exists('a', $Links)){ 
 
