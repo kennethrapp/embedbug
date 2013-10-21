@@ -17,7 +17,7 @@
 
 <?php
 
-require_once(realpath("../src/Embedbug/Embedbug.php"));
+require_once(realpath("src/Embedbug/Embedbug.php"));
 
 /* 	test pulling a series of urls by scraping the frontpage of
 	hacker news and processing the outbound links... 
@@ -125,18 +125,16 @@ if(count($Links) && array_key_exists('a', $Links)){
 
     if(count($Feed)){
     	
-    	file_put_contents("feed.json", json_encode($Feed));
+    	//file_put_contents("feed.json", json_encode($Feed));
     	
     	?><UL><?php
-	    
 	    foreach($Feed as $Item=>$Values){
 		    
 		    ?><LI><?php
-		    
-		    /* images are slow and stupid
+		    /* images are slow and stupid*/
     		if(array_key_exists('image_url', $Values)){
     			?><img src="<?php echo htmlspecialchars($Values['image_url']);?>" style="max-width:100px"><?php
-    		} */
+    		} 
 
     		if(array_key_exists('type', $Values)){ 
     			echo htmlspecialchars($Values['type']).": ";
