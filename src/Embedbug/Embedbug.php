@@ -1,8 +1,8 @@
-<?php namespace EmbedBug;
+<?php namespace Embedbug;
 
 require_once("uagent.php"); // randon user agent generator by Luka Pušić
 
-class EmbedBug{
+class Embedbug{
 
 	/* there should be a url router which handles specific urls. Also the images are
 	incredibly large sometimes so there should be options to thumbnail locally or not
