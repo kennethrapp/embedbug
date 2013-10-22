@@ -1,6 +1,0 @@
-web1: #component type & number
-  php_version: 5.3.23
-  php_extensions:
-    - mysql
-    - gd
-    - curl
