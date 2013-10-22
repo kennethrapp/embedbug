@@ -475,16 +475,24 @@ class EmbedBug{
 	    			continue;
 	    		}
 	    		
-	    		$Parse = array();
+				$site = parse_url($key);
+				
+				// provide defaults for the header (must have link, title, site name and type
+				// and an index for Curl info
+	    		$Parse = array(
+					'info'      => $this->GetInfo($key), 
+					'link'      => $key, 
+					'title'     => substr($key,0,50), 
+					'site_name' => $site['host']
+				);
+				
 	    		$URL = $key;
 
 	    		// if there's still no title, see if the title tag exists
 		    	if(isset($AllMeta[$key]['title']) && count($AllMeta[$key]['title'])){
-
 		    		if(array_key_exists('textcontent', $AllMeta[$key]['title'][0])){ 
 		    			$Parse['title'] = $AllMeta[$key]['title'][0]['textcontent'];
 		    		}			
-		    	
 		    	}
 
 	    		foreach($AllMeta[$key]['meta'] as $Meta){
