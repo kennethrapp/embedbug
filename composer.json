@@ -1,5 +1,6 @@
 {
   "name": "kennethrapp/embedbug",
+  "version": "1.0.0-alpha",
   "description": "read and format metadata from a remote url",
   "license": "MIT",
   "keywords": [ "php"],
