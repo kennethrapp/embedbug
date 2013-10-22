@@ -60,21 +60,19 @@ a{
 <body>
 
 <form>
-	<input type="text" size="50" name="url" value="https://news.ycombinator.com/news">
+	<input type="text" method="post" size="50" name="url" value="https://news.ycombinator.com/news">
 	<input type="submit">
 </form>
 <script type="text/javascript">
-/*
-var template = $('#template-item').html();
-			var html = Mustache.to_html(template, data);
-			console.log(html);
-			//$(".container").append(html);
-*/
+/* var template = $('#template-item').html();
+   var html = Mustache.to_html(template, data);
+	console.log(html);
+//$(".container").append(html);*/
 
 function AttachFeed(url, node){
 	$.ajax({
 		url: "json.php",
-		data: {"url": url},
+		data: {"url": url },
 		type: "POST",
 		success: function(data){
 			for(url in data){
