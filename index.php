@@ -59,7 +59,7 @@ a{
 
 <body>
 
-<form>
+<form id="target">
 	<input type="text" method="post" size="50" name="url" value="https://news.ycombinator.com/news">
 	<input type="submit">
 </form>
@@ -70,6 +70,9 @@ a{
 //$(".container").append(html);*/
 
 function AttachFeed(url, node){
+	
+
+		
 	$.ajax({
 		url: "json.php",
 		data: {"url": url },
@@ -86,8 +89,12 @@ function AttachFeed(url, node){
 
 $(window).on('load', function(){
 
-	AttachFeed($('input[name="url"]').val(), '.container');
-	
+	$("#target").submit(function(e){
+		e.preventDefault();
+		AttachFeed($('input[name="url"]').val(), '.container');
+	});
+
+
 });
 </script>
 
