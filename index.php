@@ -31,6 +31,7 @@ a{
 .hentry{
 	padding-top    : 0.2em;
 	padding-bottom : 1em;
+	padding-left   : 5% ;
 	
 }
 
@@ -97,9 +98,10 @@ $(window).on('load', function(){
 </body>
 
 <script id="template-item" type="text/template">
-<article class="block hentry">
+<article class="block hentry" id="{{hash}}">
 
 <header class="block header">
+<a href="javascript:void(0)" onclick="javascript:AttachFeed('{{link}}', '#{{hash}}')"> [+] </a> 
 <span class="type">{{type}}</span>  <a class="outlink" href="{{link}}">{{title}}</a> <span class="sitename">({{site_name}})</a> 
 </header>
 

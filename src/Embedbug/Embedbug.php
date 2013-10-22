@@ -483,7 +483,8 @@ class EmbedBug{
 					'info'      => $this->GetInfo($key), 
 					'link'      => $key, 
 					'title'     => substr($key,0,50), 
-					'site_name' => $site['host']
+					'site_name' => $site['host'],
+					'hash'      => md5($key)
 				);
 				
 	    		$URL = $key;
