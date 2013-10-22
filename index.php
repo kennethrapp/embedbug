@@ -6,53 +6,52 @@
 <script src="mustache.js"></script>
 <style type="text/css">
 body{
-line-height:150%;
-font-family:arial,monospace;
-font-size:10pt;
+	line-height : 150%;
+	font-family : arial,monospace;
+	font-size   : 10pt;
 }
 
 a{
-	text-decoration:none
+	text-decoration : none
 }
 
 .type{
-	font-weight:bold;
-	margin-right:0.5em;
+	font-weight : bold;
 }
 
 .block{
-	display:block;
+	display : block;
 }
 
 .header{
-	font-size:12pt;
-	border-bottom:1px solid #ddd;
-	padding-bottom:0.2em;
+	border-bottom  : 1px solid #ddd;
+	padding-bottom : 0.2em;
 }
 
 .hentry{
-	padding-top:0.2em;
-	padding-bottom:1em;
+	padding-top    : 0.2em;
+	padding-bottom : 1em;
 	
 }
 
 .sitename{
-	font-size:8pt;
-	color:#505050;
+	font-size : 8pt;
+	color     : #505050;
 }
 
 .footer{
-	font-size:8pt;
+	font-size  : 8pt;
 }
 
 .entry-content{
-  display:block;
+  display : block;
 }
+
 .container {
-    padding-top	: 3em;
-    display		: block;
-    padding-left: 2em;
-    padding-right: 4em;
+    padding-top	  : 3em;
+    display		  : block;
+    padding-left  : 2em;
+    padding-right : 4em;
 }
 </style>
 </head>
@@ -70,19 +69,26 @@ var template = $('#template-item').html();
 			console.log(html);
 			//$(".container").append(html);
 */
-$(window).on('load', function(){
+
+function AttachFeed(url, node){
 	$.ajax({
 		url: "json.php",
+		data: {"url": url},
+		type: "POST",
 		success: function(data){
-			console.log(data);
-			
 			for(url in data){
 				var template = $("#template-item").html();
 				var rendered = Mustache.to_html(template, data[url]);
-				$(".container").append(rendered);	
+				$(node).append(rendered);	
 			}
 		}
 	});
+}
+
+$(window).on('load', function(){
+
+	AttachFeed($('input[name="url"]').val(), '.container');
+	
 });
 </script>
 

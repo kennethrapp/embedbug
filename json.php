@@ -4,7 +4,7 @@ require_once(realpath("src/Embedbug/Embedbug.php"));
 
 $filter = array('url'=>array('filter'=>FILTER_VALIDATE_URL));
 
-$url = filter_input_array(INPUT_GET, $filter);
+$url = filter_input_array(INPUT_POST, $filter);
 
 if(!$url){
 	$url = array('url'=>"https://news.ycombinator.com/news");
