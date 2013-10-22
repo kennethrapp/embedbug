@@ -459,138 +459,114 @@ class Embedbug{
 	$defaults is an optional array with default values
 	*/
 
-	function ExtractFeed($defaults = null){ 
+	function ExtractFeed($url, $defaults = null){
+	
+		$url_parsed = parse_url($url);
 		
-		$Feed = array();
-
-		if($AllMeta = $this->ExtractTags(null, array('meta','title'))){
-
-	    	// format into a nice thing. 
-	    	// this works, except it needs indices for each url. 
-	    	foreach($AllMeta as $key=>$val){
-
-	    		$code = $this->GetInfo($key, 'http code');
+		if((is_array($url_parsed)) && ($AllTags = $this->ExtractTags($url, array('meta','title')))){
+		
+			// provide defaults for the header (must have link, title, site name and type
+			// and an index for Curl info
+			$Feed[$url] = array(
+				'info'      => $this->GetInfo($url), 
+				'link'      => $url, 
+				'title'     => substr($url,0,50), 
+				'site_name' => $url_parsed['host'],
+				'hash'      => md5($url)
+			);
+			
+						// if there's still no title, see if the title tag exists
+			if(isset($AllTags['title']) && count($AllTags['title'])){
+				if(array_key_exists('textcontent', $AllTags['title'][0])){ 
+					$Feed[$url]['title'] = $AllTags['title'][0]['textcontent'];
+				}			
+			}
+			
+				
+			foreach($AllTags['meta'] as $Meta){
+			
+				$code = $this->GetInfo($url, 'http code');
 
 	    		if((int)$code !== 200){
-	    			continue;
+	    			return null;
 	    		}
-	    		
-				$site = parse_url($key);
 				
-				// provide defaults for the header (must have link, title, site name and type
-				// and an index for Curl info
-	    		$Parse = array(
-					'info'      => $this->GetInfo($key), 
-					'link'      => $key, 
-					'title'     => substr($key,0,50), 
-					'site_name' => $site['host'],
-					'hash'      => md5($key)
-				);
-				
-	    		$URL = $key;
-
-	    		// if there's still no title, see if the title tag exists
-		    	if(isset($AllMeta[$key]['title']) && count($AllMeta[$key]['title'])){
-		    		if(array_key_exists('textcontent', $AllMeta[$key]['title'][0])){ 
-		    			$Parse['title'] = $AllMeta[$key]['title'][0]['textcontent'];
-		    		}			
-		    	}
-
-	    		foreach($AllMeta[$key]['meta'] as $Meta){
-
-		    		if(array_key_exists('name', $Meta)){
+				if(array_key_exists('name', $Meta)){
 		    			
-		    			if(array_key_exists('content', $Meta)){ 
+		    		if(array_key_exists('content', $Meta)){ 
 		    				
-		    				$content = trim($Meta['content']);
+		    			$content = trim($Meta['content']);
 		    				
-		    				if(is_string($content) && !empty($content)){ 
+		    			if(is_string($content) && !empty($content)){ 
 
-				    			switch(strtolower($Meta['name'])){
-				    				case "description" : $Parse['description'] = $content; break;
-				    				case "title"       : $Parse['title']       = $content; break;
-				    				case "author"      : $Parse['author']      = $content; break;
-				    				case "keywords"    : $Parse['keywords']    = explode(",", $content); break;
-				    				case "copyright"   : $Parse['copyright']   = $content; break;
-				    			}
-				    		}
-
-			    			// replace with parsely JSON if it exists
-			    			if($Meta['name'] === 'parsely-page'){
-			    				
-			    				$json = json_decode($content, true);
-
-			    				foreach($json as $key=>$val){
-
-			    					if(is_string($val) && !empty($val)){ 
-			    						$Parse[$key] = $val;
-			    					}
-			    				}
+							switch(strtolower($Meta['name'])){
+								case "description" : $Feed[$url]['description'] = $content; break;
+								case "title"       : $Feed[$url]['title']       = $content; break;
+								case "author"      : $Feed[$url]['author']      = $content; break;
+								case "keywords"    : $Feed[$url]['keywords']    = explode(",", $content); break;
+								case "copyright"   : $Feed[$url]['copyright']   = $content; break;
 							}
 						}
-		    		}
-		    		
-		    		/* look for open graph and twitter tags. Overwrite the parse array with those. */
 
-		    		if(array_key_exists('property', $Meta)){
-
-		    			$prop = trim($Meta['property']);
-
-		    			if(array_key_exists('content', $Meta)){ 
-			    			
-			    			$content = trim($Meta['content']);
-			    			
-			    			if(is_string($content) && !empty($content) && (stripos($prop,'twitter:') !== false)){ 
-			    			// twitter tags
-			    				
-			    				switch($prop){
-			    					case "twitter:creator" 		: $Parse['twitter']     = $content; break;
-			    					case "twitter:url" 			: $Parse['link']   		= $content; break;
-			    					case "twitter:title" 		: $Parse['title']   	= $content; break;
-			    					case "twitter:description" 	: $Parse['description'] = $content; break;
-			    					case "twitter:image"        : $Parse['image_url']   = $content; break;
-			      				}
-			    			
-			    			}
-
-			    			if(is_string($content) && (stripos($prop,'og:') !== false)){ // an open graph tag
-			    				
-			    				switch($prop){
-			    					case "og:image"		  : $Parse['image_url']   = $content; break;
-			    					case "og:title"		  : $Parse['title'] 	  = $content; break;
-			    					case "og:url"  		  : $Parse['link'] 		  = $content; break;
-			    					case "og:site_name"   : $Parse['site_name']   = $content; break;
-			    					case "og:type"        : $Parse['type']        = $content; break;
-			    					case "og:description" : $Parse['description'] = $content; break;
-			      				}
-			    			}
-
-			    			
-			    			if(is_string($content) && (stripos($prop,'article:') !== false)){// replace 'article:' content
-			    			
-			    				switch($prop){
-			    					case "article:author"		  : $Parse['author']         = $content; break;
-			    					case "article:published_time" : $Parse['published_time'] = $content; break;
-			    				}
-			    			}
-			    		}
-		    		}
-		    	}// end foreach
-
-		    	// apply defaults to nonexistent or empty fields
-		    	if(is_array($defaults)){
-					foreach($defaults as $key=>$val){
-						if(!array_key_exists($key, $Parse) || empty($Parse[$key])){
-							$Parse[$key] = $defaults[$key];
+						// replace with parsely JSON if it exists
+						if($Meta['name'] === 'parsely-page'){
+							$json = json_decode($content, true);
+							foreach($json as $pkey=>$val){
+								if(is_string($val) && !empty($val)){ 
+									$Feed[$url][$pkey] = $val;
+								}
+							}
 						}
-					}
-				}
-		    	
-		    	$Feed[ $URL ] = $Parse;
-		    }
-    	}
+						
+						if(array_key_exists('property', $Meta)){
 
-    	return $this->Finalize($Feed, $defaults);
+							$prop = trim($Meta['property']);
+
+							if(array_key_exists('content', $Meta)){ 
+								
+								$content = trim($Meta['content']);
+								
+								if(is_string($content) && !empty($content) && (stripos($prop,'twitter:') !== false)){ 
+								// twitter tags
+									
+									switch($prop){
+										case "twitter:creator" 		: $Feed[$url]['twitter']     = $content; break;
+										case "twitter:url" 			: $Feed[$url]['link']   		= $content; break;
+										case "twitter:title" 		: $Feed[$url]['title']   	= $content; break;
+										case "twitter:description" 	: $Feed[$url]['description'] = $content; break;
+										case "twitter:image"        : $Feed[$url]['image_url']   = $content; break;
+									}
+								
+								}
+
+								if(is_string($content) && (stripos($prop,'og:') !== false)){ // an open graph tag
+									
+									switch($prop){
+										case "og:image"		  : $Feed[$url]['image_url']   = $content; break;
+										case "og:title"		  : $Feed[$url]['title'] 	   = $content; break;
+										case "og:url"  		  : $Feed[$url]['link'] 	   = $content; break;
+										case "og:site_name"   : $Feed[$url]['site_name']   = $content; break;
+										case "og:type"        : $Feed[$url]['type']        = $content; break;
+										case "og:description" : $Feed[$url]['description'] = $content; break;
+									}
+								}
+
+								
+								if(is_string($content) && (stripos($prop,'article:') !== false)){// replace 'article:' content
+								
+									switch($prop){
+										case "article:author"		  : $Feed[$url]['author']         = $content; break;
+										case "article:published_time" : $Feed[$url]['published_time'] = $content; break;
+									}
+								}
+							}
+						}	
+					}		
+				}
+			}// end foreach
+		}
+		
+		return $this->Finalize($Feed, $defaults);
 	}
 
 	function Finalize($array){
