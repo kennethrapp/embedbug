@@ -576,7 +576,7 @@ class Embedbug{
 			}
 			else{
 				$val = trim( utf8_decode( preg_replace('/[^(\x20-\x7F)]*/', '', $val) ) );
-				$array[htmlspecialchars($key)] =  htmlspecialchars($val);
+				$array[$key] =  $val;
 			}
 		}
 		
