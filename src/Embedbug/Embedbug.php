@@ -19,7 +19,14 @@ class Embedbug{
 
 	function __construct($urls, $settings=null, $terminate_string="</head>", $terminate_length=1024){
 		
-		$this->urls = $urls;
+
+		if(is_array($urls)){ 
+			$this->urls = $urls;
+		}
+		else{
+			$this->urls=array($urls);
+		}
+
 		$this->Content = array();
 		$this->Curl = array();
 
@@ -30,23 +37,18 @@ class Embedbug{
 
 		/* for each url, initialize a cUrl object and add it to the array. */
 
-		if(is_array($urls) && count($urls)){ 
 
-	    	foreach($urls as $url){
+    	foreach($this->urls as $url){
 
-	    		if(filter_var($url, FILTER_VALIDATE_URL) && !array_key_exists($url, $this->Curl)){ 
-	        		$this->Curl[$url] = $this->addHandle($url, $settings, $this->handle);	
-	        	}
-	    	}
-	    
-	    }else if(filter_var($urls, FILTER_VALIDATE_URL) && !array_key_exists($urls, $this->Curl)){ 
-	        $this->Curl[$urls] = $this->addHandle($urls, $settings, $this->handle);	
-	    }
+    		if(filter_var($url, FILTER_VALIDATE_URL) && !array_key_exists($url, $this->Curl)){ 
+        		$this->Curl[$url] = $this->addHandle($url, $settings, $this->handle);	
+        	}
+    	}
+    
+    	libxml_use_internal_errors(true);
+	    libxml_clear_errors();
 
-	    	libxml_use_internal_errors(true);
-		    libxml_clear_errors();
-
-		    $this->doc = new \DOMDocument();
+	    $this->doc = new \DOMDocument();
 		     
     }
 
@@ -84,14 +86,14 @@ class Embedbug{
 	/* retrieve a content group */
 
 	function GetContent($url=null, $key=null){
-		if(ctype_alnum($url) && is_array($this->Content)){
+		//if(ctype_alnum($url) && is_array($this->Content)){
 			if(array_key_exists($url, $this->Content)){
 				if(isset($key, $this->Content[$url][$key])){
 					return $this->Content[$url][$key];
 				}
 				return $this->Content[$url];
 			}
-		}
+		//}
 
 		return $this->Content;
 	}
@@ -325,7 +327,10 @@ class Embedbug{
     /* extract html tags and content from a previously taken url.
 
     unknown if the option for url as null has actually
-    been tested yet. */
+    been tested yet. 
+
+
+    - this appears to break when url is an array :(*/
 
     function ExtractTags($url = null, array $tags){
 
