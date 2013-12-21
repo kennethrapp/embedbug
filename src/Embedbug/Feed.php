@@ -252,7 +252,7 @@ class Feed{
 	    return false; 
 	}
 
-	function validate_url($url, $flags=){
+	function validate_url($url){
 		if($url === filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED|FILTER_FLAG_SCHEME_REQUIRED) && ($parsed_url = parse_url($url))){	
 			if((stripos($parsed_url['scheme'], 'http') !== FALSE) && (strlen($parsed_url['path']) > 1)){
 				return $parsed_url;
