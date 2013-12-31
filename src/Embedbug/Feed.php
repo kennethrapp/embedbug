@@ -46,7 +46,8 @@ class Feed{
 						// and an index for Curl info
 						$Feed[$url] = array(
 							"link" => $url,
-							'host' => $url_parsed['host']
+							'host' => $url_parsed['host'],
+							'info' => $this->GetInfo($url)
 						);
 						
 						// if there's still no title, see if the title tag exists
@@ -185,6 +186,8 @@ class Feed{
 						$cache['title'][]=$Feed[$key]['title'];
 					}
 				}
+
+
 			}
 		}
 		
