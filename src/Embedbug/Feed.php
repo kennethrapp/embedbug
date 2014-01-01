@@ -1,5 +1,7 @@
 <?php namespace Embedbug;
 
+require_once("Embedbug.php");
+
 class Feed{
 
 	private $data;
