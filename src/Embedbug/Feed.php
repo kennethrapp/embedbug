@@ -30,6 +30,29 @@ class Feed{
 
 	}
 
+	function slugify($text){ 
+	  // replace non letter or digits by -
+	  $text = preg_replace('~[^\\pL\d]+~u', '-', $text);
+
+	  // trim
+	  $text = trim($text, '-');
+
+	  // transliterate
+	  $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+
+	  // lowercase
+	  $text = strtolower($text);
+
+	  // remove unwanted characters
+	  $text = preg_replace('~[^-\w]+~', '', $text);
+
+	  if (empty($text)){
+	    return null;
+	  }
+
+	  return $text;
+	}
+
 	function ExtractFeed($urls){
 
 		$this->Activate($urls);
@@ -43,10 +66,6 @@ class Feed{
 				foreach($this->url as $url){ 
 
 					if($url_parsed = $this->validate_url($url)){ 
-
-						// ignore anything that didn't send a 200
-
-						
 
 						// provide defaults for the header (must have link, title, site name and type
 						// and an index for Curl info
@@ -101,7 +120,7 @@ class Feed{
 									$Feed[$url]['keywords'] = array_intersect_key(
 										$Feed[$url]['keywords'],
 										array_unique(
-											array_map('strtolower', $Feed[$url]['keywords'])
+											array_map(array($this, 'slugify'), $Feed[$url]['keywords'])
 										)
 									);			
 								}
