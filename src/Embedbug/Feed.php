@@ -109,13 +109,18 @@ class Feed{
 									
 									switch(strtolower($Meta['property'])){
 										// integrate facebook tags
-										case "og:image"		  : $Feed[$url]['image_url']   = $content; break;
-										case "og:title"		  : $Feed[$url]['title'] 	   = $content; break;
-										case "og:url"  		  : $Feed[$url]['link'] 	   = $content; break;
-										case "og:site_name"   : $Feed[$url]['site_name']   = $content; break;
-										case "og:type"        : $Feed[$url]['type']        = $content; break;
-										case "og:description" : $Feed[$url]['description'] = $content; break;
-
+										case "og:image"		    : $Feed[$url]['image_url']   = $content; break;
+										case "og:title"		    : $Feed[$url]['title'] 	     = $content; break;
+										case "og:url"  		    : $Feed[$url]['link'] 	     = $content; break;
+										case "og:site_name"     : $Feed[$url]['site_name']   = $content; break;
+										case "og:type"          : $Feed[$url]['type']        = $content; break;
+										case "og:description"   : $Feed[$url]['description'] = $content; break;
+										case "og:video"         : $Feed[$url]['video'] = array('src'=>$content); break; 
+										case "og:video:width"   : $Feed[$url]['video']['width'] = $content; break;
+										case "og:video:height"  : $Feed[$url]['video']['height'] = $content; break;
+										case "og:video:type"    : $Feed[$url]['video']['type']   = $content; break;
+										case "og:video:duration": $Feed[$url]['video']['duration'] = $content; break;
+										
 										// integrate twitter tags
 										case "twitter:creator" 		: $Feed[$url]['twitter']     = $content; break;
 										case "twitter:url" 			: $Feed[$url]['link']   	 = $content; break;
@@ -141,16 +146,21 @@ class Feed{
 
 								if(array_key_exists('rel', $Link) && !empty($Link['rel'])){
 									
-									if(isset($Link['href'])){ 
-										
-										$content = trim($Link['href']);
-										
+									if(isset($Link['href']) && ($content = trim($Link['href']))){ 
+
 										switch(strtolower($Link['rel'])){
 											case "prev"	    : $Feed[$url]['prev']      = array('title'=>isset($Link['title'])?$Link['title']:$Link['href'], 'href'=>$Link['href']); break;
 											case "next"	    : $Feed[$url]['next']      = array('title'=>isset($Link['title'])?$Link['title']:$Link['href'], 'href'=>$Link['href']); break;
 											case "author"   : $Feed[$url]['author']    = $content;
 											case "license"  : $Feed[$url]['license']   = $content;
 											case "alternate": $Feed[$url]['alternate'] = $content;
+										}
+										
+										// get oembed
+										if(strtolower($Link['rel']) === "alternate"){
+											if(array_key_exists('type', $Link) && !empty($Link['type']) && ($Link['type'] === "application/json+oembed")){
+												$Feed[$url]['oembed'] = $content;
+											}
 										}
 									}
 								}
