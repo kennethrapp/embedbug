@@ -277,7 +277,7 @@ class Embedbug{
         // store the headers 
         $this->CurlOpt($cUrl, 'headerfunction',  function($ch, $header) use($url, $ref){   
 
-        	if($ref->GetInfo($url, 'http code') !== 200) return -1;     
+        	if((int)$ref->GetInfo($url, 'http code') !== 200) return -1;     
             
             $ref->SetContent($url,'headers', $header);    
       	    

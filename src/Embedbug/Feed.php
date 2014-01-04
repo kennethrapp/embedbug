@@ -44,6 +44,10 @@ class Feed{
 
 					if($url_parsed = $this->validate_url($url)){ 
 
+						// ignore anything that didn't send a 200
+
+						
+
 						// provide defaults for the header (must have link, title, site name and type
 						// and an index for Curl info
 						$Feed[$url] = array(
