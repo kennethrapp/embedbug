@@ -53,7 +53,7 @@ class Feed{
 	  return $text;
 	}
 
-	function ExtractFeed($urls){
+	function ExtractFeed($urls, $tags=array('meta', 'title', 'link')){
 
 		$this->Activate($urls);
 
@@ -61,11 +61,11 @@ class Feed{
 		
 		if($EmbedBug = $this->EmbedBug){ 
 		
-			if(($AllTags = $this->EmbedBug->ExtractTags($this->url, array('meta', 'title', 'link')))){
+			if(($AllTags = $this->EmbedBug->ExtractTags($this->url, $tags))){
 
 				foreach($this->url as $url){ 
 
-					if($url_parsed = $this->validate_url($url)){ 
+					if($url_parsed = $this->validate_url($url) && ((int)$this->GetInfo($url, 'http code') === 200) ){
 
 						// provide defaults for the header (must have link, title, site name and type
 						// and an index for Curl info
@@ -84,7 +84,9 @@ class Feed{
 
 						
 						if(count($AllTags[$url]['meta'])){ 
+
 							foreach($AllTags[$url]['meta'] as $Meta){
+
 								if(isset($Meta['name'], $Meta['content'])){
 
 									// slurp everthing from parse.ly
@@ -239,23 +241,25 @@ class Feed{
 	        'ssl verifypeer' => false,
 	        'header'		 => false
 		), '</body>', 1024768);
-
-		//$Headers = $this->EmbedBug->GetInfo($this->url, 'headers');
-
+		
 		$OutboundLinks = array();
 
 		$Links = $this->EmbedBug->ExtractTags($this->url, array('a'));
 
 		foreach($this->url as $url){
+			
+			if((int)$this->GetInfo($url, 'http code') === 200) { 
+				//$Headers = $this->EmbedBug->GetInfo($url, 'headers');
+				
+				$OutboundLinks[$url] = array();
 
-			$OutboundLinks[$url] = array();
-
-			if(isset($Links[$url]['a'])){ 
-				foreach($Links[$url]['a'] as $link){
-					if(isset($link['href'], $link['textcontent'])){
-						if($this->validate_url($link['href'])){ 	
-							$OutboundLinks[$url][] = $link['href'];
-						}							
+				if(isset($Links[$url]['a'])){ 
+					foreach($Links[$url]['a'] as $link){
+						if(isset($link['href'], $link['textcontent'])){
+							if($this->validate_url($link['href'])){ 	
+								$OutboundLinks[$url][] = $link['href'];
+							}							
+						}
 					}
 				}
 			}
