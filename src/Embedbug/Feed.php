@@ -291,8 +291,6 @@ class Feed{
 						$cache['title'][]=$Feed[$key]['title'];
 					}
 				}
-
-
 			}
 		}
 		
@@ -335,7 +333,12 @@ class Feed{
 				$OutboundLinks[$url] = array();
 
 				if(isset($Links[$url]['a'])){ 
+
 					foreach($Links[$url]['a'] as $link){
+
+						// skip nofollow links...
+						if(isset($link['rel']) && (strtolower(trim($link['rel'])) === 'nofollow')) continue;
+
 						if(isset($link['href'], $link['textcontent'])){
 							if($this->validate_url($link['href'])){ 	
 								$OutboundLinks[$url][] = $link['href'];
