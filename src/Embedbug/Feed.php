@@ -62,6 +62,8 @@ class Feed{
 
 		if($parsed = parse_url($url)){
 
+			if(!isset($parsed['host'])) return false;
+
 			$handle = curl_init("http://{$parsed['host']}/robots.txt");
 			 
 			 curl_setopt($handle, CURLOPT_RETURNTRANSFER, TRUE); 
@@ -167,6 +169,7 @@ class Feed{
 				    				
 					    			if(isset($Meta['content']) && ($content = trim($Meta['content']))){ 
 										switch(strtolower($Meta['name'])){
+											case "rating"      : $Feed[$url]['rating']      = $content; break;
 											case "description" : $Feed[$url]['description'] = $content; break;
 											case "title"       : $Feed[$url]['title']       = $content; break;
 											case "author"      : $Feed[$url]['author']      = $content; break;
