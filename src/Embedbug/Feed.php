@@ -53,7 +53,76 @@ class Feed{
 	  return $text;
 	}
 
+	/* 	return false if $url is disallowed, otherwise
+		return true; */
+	function ValidateRobotsDotText($url){
+
+		$robotstxt=null;
+		$check=true;
+
+		if($parsed = parse_url($url)){
+
+			$handle = curl_init("http://{$parsed['host']}/robots.txt");
+			 
+			 curl_setopt($handle, CURLOPT_RETURNTRANSFER, TRUE); 
+			 
+			 $response = curl_exec($handle); 
+			 $httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+			 
+			 curl_close($handle); 
+			 
+			 if($httpCode == 200) { 
+			 	$robotstxt = array_filter(explode("\n", $response)); 
+			 } else { 
+			 	$robotstxt = false; 
+			 }
+
+			if(empty($robotstxt)) return true;
+
+			  $rules = array(); 
+
+			  foreach($robotstxt as $line) {
+
+			  	if($line[0] == "#") continue;
+
+			  	/* since we're sending a random user-agent by default, we will
+			  	consider ourselves bound by any rule we encounter. 
+			  	Which is only polite. */
+
+			  	list($type, $rule) = explode(':', $line, 2); 
+
+			  	$type = trim(strtolower($type));
+			  	$rule = trim($rule);
+
+			  	if($type === 'disallow'){
+
+			  		$check_url = $parsed['scheme'].'://'.$parsed['host'].$rule;
+			  		$check = stripos($check_url, $url);
+
+			  		if($check !== false) return false;
+			  		
+			  	}
+			}
+		}
+
+		return true;
+	}
+
 	function ExtractFeed($urls, $tags=array('meta', 'title', 'link')){
+
+		// enforce robots.txt search
+		if(is_array($urls)){ 
+			foreach($urls as $key=>$url){
+				if(!$this->ValidateRobotsDotText($url)){
+					unset($url[$key]);
+				}
+			}
+		}
+		else{
+			if(!$this->ValidateRobotsDotText($urls)){
+				return false;
+			}
+		}
 
 		$this->Activate($urls);
 
@@ -104,7 +173,6 @@ class Feed{
 											case "keywords"    : $Feed[$url]['keywords']    = explode(",", $content); break;
 											case "copyright"   : $Feed[$url]['copyright']   = $content; break;
 											case "robots"      : $Feed[$url]['robots']      = $content; break;
-											
 										}
 									}
 								
@@ -234,6 +302,19 @@ class Feed{
 	}
 
 	function OutboundLinks($urls){
+
+		if(is_array($urls)){ 
+			foreach($urls as $key=>$url){
+				if(!$this->ValidateRobotsDotText($url)){
+					unset($url[$key]);
+				}
+			}
+		}
+		else{
+			if(!$this->ValidateRobotsDotText($urls)){
+				return false;
+			}
+		}
 		
 		$this->Activate($urls, array(
 	        'binarytransfer' => 1,
