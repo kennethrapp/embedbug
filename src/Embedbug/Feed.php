@@ -75,7 +75,8 @@ class Feed{
 			 
 			 if($httpCode == 200) { 
 			 	$robotstxt = array_filter(explode("\n", $response)); 
-			 } else { 
+			 } 
+			 else { 
 			 	$robotstxt = false; 
 			 }
 
@@ -131,11 +132,8 @@ class Feed{
 		$Feed = array();
 		
 		if($EmbedBug = $this->EmbedBug){ 
-		
 			if(($AllTags = $this->EmbedBug->ExtractTags($this->url, $tags))){
-
 				foreach($this->url as $url){ 
-
 					if($url_parsed = $this->validate_url($url) && ((int)$this->GetInfo($url, 'http code') === 200) ){
 
 						// provide defaults for the header (must have link, title, site name and type
@@ -153,41 +151,29 @@ class Feed{
 							}			
 						}
 
-						
 						if(count($AllTags[$url]['meta'])){ 
-
 							foreach($AllTags[$url]['meta'] as $Meta){
-
 								if(isset($Meta['name'], $Meta['content'])){
-
+									
+									$content = trim($Meta['content']);
+									
 									// slurp everthing from parse.ly
-									if(($Meta['name'] == 'parsely-page') && ($content = json_decode(trim($Meta['content']), 1))){
-										foreach($content as $key=>$val){
+									if(($Meta['name'] == 'parsely-page') && ($json_content = json_decode($content, 1))){
+										foreach($json_content as $key=>$val){
 											$Feed[$url][$key] = $val;
 										}
 									}
 				    				
-					    			if(isset($Meta['content']) && ($content = trim($Meta['content']))){ 
-										switch(strtolower($Meta['name'])){
-											case "rating"      : $Feed[$url]['rating']      = $content; break;
-											case "description" : $Feed[$url]['description'] = $content; break;
-											case "title"       : $Feed[$url]['title']       = $content; break;
-											case "author"      : $Feed[$url]['author']      = $content; break;
-											case "keywords"    : $Feed[$url]['keywords']    = explode(",", $content); break;
-											case "copyright"   : $Feed[$url]['copyright']   = $content; break;
-											case "robots"      : $Feed[$url]['robots']      = $content; break;
-										}
-									}
-								
+				    				$feed[$url][strtolower($Meta['name'])] = $content;
+
 								}// end meta name exists
 
 
 								// now edit keywords if they exist
-
-								if(isset($Feed[$url]['keywords']) && count($Feed[$url]['keywords'])){
+								if(isset($Feed[$url]['keywords'])){
 
 									// remove null and empty elements
-									$Feed[$url]['keywords'] = array_filter($Feed[$url]['keywords'], 'strlen');
+									$Feed[$url]['keywords'] = array_filter(explode(",", $Feed[$url]['keywords']), 'strlen');
 									
 									// this should remove duplicate elements case-insensitively
 									$Feed[$url]['keywords'] = array_intersect_key(
@@ -266,8 +252,6 @@ class Feed{
 				}
 			}
 		}
-
-
 
 		// one final dupe-check - remove duplicate links and titles. 
 		// ignore if we only took the feed of one url 
@@ -353,7 +337,6 @@ class Feed{
 		}
 
 		return $OutboundLinks; 
-
 	}
 
 	function getDomainWithMX($url) {
@@ -375,7 +358,6 @@ class Feed{
 		        } 
 		    
 		    } while (array_shift($hostnameParts) !== null);
-
 	    }
 
 	    return false; 
@@ -393,6 +375,4 @@ class Feed{
 	function GetInfo($url, $key=null){
 		return $this->EmbedBug->GetInfo($url, $key);
 	}
-
-
 }
