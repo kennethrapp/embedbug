@@ -132,16 +132,24 @@ class Feed{
 		$Feed = array();
 		
 		if($EmbedBug = $this->EmbedBug){ 
+			
 			if(($AllTags = $this->EmbedBug->ExtractTags($this->url, $tags))){
+				
 				foreach($this->url as $url){ 
-					if($url_parsed = $this->validate_url($url) && ((int)$this->GetInfo($url, 'http code') === 200) ){
+
+					$url_parsed = $this->validate_url($url);
+					
+					if($url_parsed && ((int)$this->GetInfo($url, 'http code') === 200) ){
 
 						// provide defaults for the header (must have link, title, site name and type
 						// and an index for Curl info
 						$Feed[$url] = array(
-							"link" => $url,
-							'host' => $url_parsed['host'],
-							'info' => $this->GetInfo($url)
+							"link"      => $url,
+							'host'      => $url_parsed['host'],
+							'site_name' => $url_parsed['host'],
+							'info'      => $this->GetInfo($url),
+							'title'     => $url,
+							'type'      => "website"
 						);
 						
 						// if there's still no title, see if the title tag exists
@@ -342,8 +350,9 @@ class Feed{
 	function getDomainWithMX($url) {
 	    //parse hostname from URL 
 	    //http://www.example.co.uk/index.php => www.example.co.uk
-	    
-		if($urlParts = $this->validate_url($url)){ 
+	    $urlParts =  $this->validate_url($url);
+
+		if($urlParts){ 
 		    
 		    //find first partial name with MX record
 		    $hostnameParts = explode(".", $urlParts["host"]);
@@ -364,8 +373,11 @@ class Feed{
 	}
 
 	function validate_url($url){
-		if($url === filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED|FILTER_FLAG_SCHEME_REQUIRED) && ($parsed_url = parse_url($url))){	
-			if((stripos($parsed_url['scheme'], 'http') !== FALSE) && (strlen($parsed_url['path']) > 1)){
+		if($url === filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED|FILTER_FLAG_SCHEME_REQUIRED)){
+
+			$parsed_url = parse_url($url);	
+			
+			if($parsed_url && (stripos($parsed_url['scheme'], 'http') !== FALSE) && (strlen($parsed_url['path']) > 1)){
 				return $parsed_url;
 			}
 		}
