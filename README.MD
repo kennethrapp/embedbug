@@ -1,5 +1,5 @@
 # Embedbug
-Embedbug is a page scraper in PHP, designed to extract groups of tags from a url. 
+Embedbug is a page scraper in PHP, designed to extract groups of tags from a url. It's still currently in the beginning stages so if you want to use it go ahead but there are no guarantees. 
 
 
 ## Usage
@@ -26,6 +26,12 @@ $Tags = $Embedbug->ExtractTags($url, $tags);
 
 Parses the content for a url and returns any tags, if found, as an array. 
 
+$paths = $Embedbug->ExtractPaths($url, $paths);
+
+Returns content based on an array of xpaths, instead of tag names. 
+(for example  $Embedbug->ExtractPaths($url, array("//meta[contains(@property,'og:')]")) returns all open graph meta tags)
+
 ## Test Scripts
 test.php instantiates the embedbug class and dumps it. (for arstechnica.com)
 test-tag.php (params ?url=[url] & tag = [tag]) displays tag(s) for a url (defaults are arstechica.com, <meta>)
+test-xpath.php tests an xpath 

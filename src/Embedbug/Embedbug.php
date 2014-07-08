@@ -375,17 +375,19 @@ class Embedbug{
 		                    $nodearray['textcontent']=$node->textContent;
 		                }
 						
-						if($this->save_html === true){
-							$nodearray['xml'] = $node->saveHTML();
-						}
-
+	
 		                if(count($nodearray)){ 
-		                    $extracted[$node][]  = $nodearray;
+		                    $extracted[$path][]  = $nodearray;
 		                }
 		            }
 		        }
 		    }
 
+			if($this->save_html === true){
+				$extracted['xml'] = $this->doc->saveHTML();
+			}
+
+			
 		   return $extracted;
 		}
 
