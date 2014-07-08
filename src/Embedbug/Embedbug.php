@@ -16,8 +16,9 @@ class Embedbug{
 	private $urls;
 	private $doc;
 	private $xpath;
+	private $save_html;
 
-	function __construct($urls, $settings=null, $terminate_string="</head>", $terminate_length=1024){
+	function __construct($urls, $settings=null, $terminate_string="</head>", $terminate_length=1024, $preserve_whitespace=false, $save_html=false){
 		
 
 		if(is_array($urls)){ 
@@ -49,6 +50,9 @@ class Embedbug{
 	    libxml_clear_errors();
 
 	    $this->doc = new \DOMDocument();
+		$this->doc->preserveWhiteSpace = $preserve_whitespace;
+		
+		$this->save_html = $save_html;
 		     
     }
 
@@ -86,15 +90,14 @@ class Embedbug{
 	/* retrieve a content group */
 
 	function GetContent($url=null, $key=null){
-		//if(ctype_alnum($url) && is_array($this->Content)){
-			if(array_key_exists($url, $this->Content)){
-				if(isset($key, $this->Content[$url][$key])){
-					return $this->Content[$url][$key];
-				}
-				return $this->Content[$url];
-			}
-		//}
 
+		if(array_key_exists($url, $this->Content)){
+			if(isset($key, $this->Content[$url][$key])){
+				return $this->Content[$url][$key];
+			}
+			return $this->Content[$url];
+		}
+		
 		return $this->Content;
 	}
 
@@ -323,18 +326,10 @@ class Embedbug{
             curl_multi_exec($this->handle, $flag);
         }while($flag > 0);
     }
-
-    /* extract html tags and content from a previously taken url.
-
-    unknown if the option for url as null has actually
-    been tested yet. 
-
-
-    - this appears to break when url is an array :(*/
-
-    function ExtractTags($url = null, array $tags){
-
-    	$content = array();
+	
+	function ExtractPaths($url=null, array $paths){
+		
+		$content = array();
 
     	if($url === null){
     		$url = $this->urls;
@@ -343,7 +338,7 @@ class Embedbug{
     	if(is_array($url)){
     		
     		foreach($url as $u){
-    			$content[$u] = $this->ExtractTags($u, $tags);
+    			$content[$u] = $this->ExtractPaths($u, $paths);
     		}
 
     		return $content;
@@ -358,62 +353,34 @@ class Embedbug{
        		$this->doc->loadHTML($content);
 		    $this->xpath = new \DOMXPath($this->doc);    
 
-		    foreach($tags as $tag){
+		    foreach($paths as $path){
 
-		        $extracted[$tag] = array();
+		        $extracted[$path] = array();
 
-		        $tagset = $this->xpath->query("//$tag");
+		        $nodeset = $this->xpath->query("$path");
 
-		        if($tagset->length > 0){
+		        if($nodeset->length > 0){
 
-		            foreach($tagset as $tagnode){
+		            foreach($nodeset as $node){
 
-		                $tagarray = array();
+		                $nodearray = array();
 
-		                foreach($tagnode->attributes as $attr){
+		                foreach($node->attributes as $attr){
 		                    $name = $attr->name;
 		                    $val = $attr->value;
-		                    $tagarray[$name] = $val;
+		                    $nodearray[$name] = $val;
 		                }
 
-		                if(isset($tagnode->textContent)){
-		                    $tagarray['textcontent']=$tagnode->textContent;
+		                if(isset($node->textContent)){
+		                    $nodearray['textcontent']=$node->textContent;
 		                }
+						
+						if($this->save_html === true){
+							$nodearray['xml'] = $node->saveHTML();
+						}
 
-		                if(count($tagarray)){ 
-		                    $extracted[$tag][]  = $tagarray;
-		                }
-		            }
-		        }
-
-		        // try it with a regex for meta tags. Even though this is 'evil', given how much
-		        // the parser seems to fail (more often than the regex) i'm fine with it.
-		        if($tag === 'meta'){
-
-		            $tagarray = array();
-		            
-		            if(preg_match("#<meta([^>]*)>#si", $content, $matches)){
-		                
-		                //$matches[1] is what stores the contents of the meta tag
-		                $matches[1] = str_replace("/", '', $matches[1]);
-
-		                // put each attribute and its value into an array
-		                $attrs = preg_split("#(\"\s)#i", trim($matches[1]));
-
-		                if(count($attrs)){ 
-
-		                // we now get the attribute name and attribute value in sperate variables
-
-		                   /* some unknown site is causing an exception because of its metadata
-		                   with explode. Later, I should replace explode with strtok */
-		                    @list($attr_name, $attr_value) = explode("=", $attr);
-		                	
-		                	// create our meta array, trimming of any double quotes 
-		                	// remaining in the attribute value string.
-		                    if(isset($attr_name, $attr_value)){ 
-		                        $tagarray[$attr_name] = trim($attr_value, '"');
-		                        $extracted[$tag][] = $tagarray;
-		                    }
+		                if(count($nodearray)){ 
+		                    $extracted[$node][]  = $nodearray;
 		                }
 		            }
 		        }
@@ -423,6 +390,17 @@ class Embedbug{
 		}
 
 		return null;
+	}
+
+    /* extract html tags and content from a previously taken url.*/
+
+    function ExtractTags($url = null, array $tags){
+
+		foreach($tags as $key=>$val){
+			$tags[$key] = "//$val";
+		}
+		
+		return $this->ExtractPaths($url, $tags);
 	}
 
 	// multi-dimensional implode. 
