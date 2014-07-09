@@ -1,12 +1,19 @@
 <?php namespace Embedbug;
 
+/* 	broken: any attempt at enabling case-insensitive search using php functions.
+    also, all of this extra filtering causes the array keys to be needlessly verbose
+	ex:  [//meta | META | meta | Meta]
+	
+	need to be able to test this on local xml content, to verify that whatever i am doing is
+	working for case insensitive nodes, not case insensitive text content.
+*/
+	
+//http://codingexplained.com/coding/php/solving-xpath-case-sensitivity-with-php
+//https://stackoverflow.com/questions/1625446/problem-with-upper-case-and-lower-case-xpath-functions-in-selenium-ide/1625859#1625859
+//https://stackoverflow.com/questions/953845/how-do-i-perform-a-case-insensitive-search-for-a-node-in-php-xpath?lq=1
 require_once("uagent.php"); // randon user agent generator by Luka Pušić
 
 class Embedbug{
-
-	/* there should be a url router which handles specific urls. Also the images are
-	incredibly large sometimes so there should be options to thumbnail locally or not
-	download at all. */
 
 	private $Content;
 	private $Curl;
@@ -37,8 +44,6 @@ class Embedbug{
 		$this->terminate_length = $terminate_length;
 
 		/* for each url, initialize a cUrl object and add it to the array. */
-
-
     	foreach($this->urls as $url){
 
     		if(filter_var($url, FILTER_VALIDATE_URL) && !array_key_exists($url, $this->Curl)){ 
@@ -146,10 +151,7 @@ class Embedbug{
 			}
 		}
 		
-		
 		$content = array();
-		
-
 		// normalize url list. Match $url to either a string or array passed
 		// to the constructor. Otherwise, take everything.
 
@@ -351,7 +353,12 @@ class Embedbug{
 		    $extracted = array();
 
        		$this->doc->loadHTML($content);
-		    $this->xpath = new \DOMXPath($this->doc);    
+		    $this->xpath = new \DOMXPath($this->doc);
+			
+	/* THIS DOESN'T WORK */		
+			
+			$this->xpath->registerNamespace('php', 'http://php.net/xpath');
+			$this->xpath->registerPhpFunctions(array('stripos','strtoupper'));			
 
 		    foreach($paths as $path){
 
@@ -399,7 +406,9 @@ class Embedbug{
     function ExtractTags($url = null, array $tags){
 
 		foreach($tags as $key=>$val){
-			$tags[$key] = "//$val";
+			// poor attempt at case-insensitive node matching by using the common cases.
+			// this SHOULD use stripos or something but I can't get it to work. 
+			$tags[$key] = "//$val | ".strtoupper($val)." | ".strtolower($val)." | ".ucfirst($val);
 		}
 		
 		return $this->ExtractPaths($url, $tags);

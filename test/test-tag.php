@@ -1,6 +1,6 @@
 
 <?php
-header("Content-Type:application/json;charset-utf-8");
+header("Content-Type:text/plain;charset-utf-8");
 
 require_once(realpath("../src/Embedbug/Embedbug.php"));
 
@@ -36,7 +36,6 @@ $Embedbug->Execute();
 
 
 
-$Feed = $Embedbug->ExtractTags($url, $tag);
-$asJson=json_encode(array("result"=>$Feed));
-header("Content-Length: ".strlen($asJson));
-echo $asJson;
+$Feed = $Embedbug->ExtractTags($url, $tag, true);
+
+echo print_r($Feed,true);

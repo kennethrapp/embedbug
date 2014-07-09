@@ -1,0 +1,6 @@
+/vendor/
+/logs/*
+.DS_STORE
+composer.lock
+*.sh
+*.bat

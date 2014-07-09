@@ -23,6 +23,6 @@ $Embedbug->Execute();
 //echo print_r($Embedbug, true);
 
 
-$Feed = $Embedbug->ExtractPaths($url, array("//meta[contains(@property,'og:')]"));
+$Feed = $Embedbug->ExtractPaths($url, array("//meta[contains(@property,'og:')]"), true);
 
 echo print_r($Feed,true);
