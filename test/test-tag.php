@@ -36,6 +36,6 @@ $Embedbug->Execute();
 
 
 
-$Feed = $Embedbug->ExtractTags($url, $tag, true);
+$Feed = $Embedbug->ExtractTags($url, $tag);
 
 echo print_r($Feed,true);

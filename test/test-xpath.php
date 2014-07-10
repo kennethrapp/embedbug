@@ -22,7 +22,7 @@ $Embedbug->Execute();
 
 //echo print_r($Embedbug, true);
 
-
-$Feed = $Embedbug->ExtractPaths($url, array("//meta[contains(@property,'og:')]"), true);
+/* 	when using an xpath, will have to pass the tag names as keys for the paths*/
+$Feed = $Embedbug->ExtractPaths($url, array("meta" => "//meta[contains(@property,'og:')]"));
 
 echo print_r($Feed,true);

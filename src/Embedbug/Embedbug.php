@@ -1,13 +1,5 @@
 <?php namespace Embedbug;
 
-/* 	broken: any attempt at enabling case-insensitive search using php functions.
-    also, all of this extra filtering causes the array keys to be needlessly verbose
-	ex:  [//meta | META | meta | Meta]
-	
-	need to be able to test this on local xml content, to verify that whatever i am doing is
-	working for case insensitive nodes, not case insensitive text content.
-*/
-	
 //http://codingexplained.com/coding/php/solving-xpath-case-sensitivity-with-php
 //https://stackoverflow.com/questions/1625446/problem-with-upper-case-and-lower-case-xpath-functions-in-selenium-ide/1625859#1625859
 //https://stackoverflow.com/questions/953845/how-do-i-perform-a-case-insensitive-search-for-a-node-in-php-xpath?lq=1
@@ -25,7 +17,7 @@ class Embedbug{
 	private $xpath;
 	private $save_html;
 
-	function __construct($urls, $settings=null, $terminate_string="</head>", $terminate_length=1024, $preserve_whitespace=false, $save_html=false){
+	function __construct($urls, $settings=null, $terminate_string="</head>", $terminate_length=1024, $save_html=false){
 		
 
 		if(is_array($urls)){ 
@@ -55,8 +47,6 @@ class Embedbug{
 	    libxml_clear_errors();
 
 	    $this->doc = new \DOMDocument();
-		$this->doc->preserveWhiteSpace = $preserve_whitespace;
-		
 		$this->save_html = $save_html;
 		     
     }
@@ -355,15 +345,13 @@ class Embedbug{
        		$this->doc->loadHTML($content);
 		    $this->xpath = new \DOMXPath($this->doc);
 			
-	/* THIS DOESN'T WORK */		
-			
 			$this->xpath->registerNamespace('php', 'http://php.net/xpath');
-			$this->xpath->registerPhpFunctions(array('stripos','strtoupper'));			
+			$this->xpath->registerPhpFunctions(array('stripos','strtolower'));			
 
-		    foreach($paths as $path){
-
-		        $extracted[$path] = array();
-
+		    foreach($paths as $key=>$path){
+			
+				$extracted[$key] = array();
+		        
 		        $nodeset = $this->xpath->query("$path");
 
 		        if($nodeset->length > 0){
@@ -382,9 +370,8 @@ class Embedbug{
 		                    $nodearray['textcontent']=$node->textContent;
 		                }
 						
-	
-		                if(count($nodearray)){ 
-		                    $extracted[$path][]  = $nodearray;
+		                if(count($nodearray)){
+							$extracted[$key][]  = $nodearray;
 		                }
 		            }
 		        }
@@ -405,13 +392,29 @@ class Embedbug{
 
     function ExtractTags($url = null, array $tags){
 
-		foreach($tags as $key=>$val){
-			// poor attempt at case-insensitive node matching by using the common cases.
-			// this SHOULD use stripos or something but I can't get it to work. 
-			$tags[$key] = "//$val | ".strtoupper($val)." | ".strtolower($val)." | ".ucfirst($val);
+		// build a new array with the tags as keys and xpaths as values
+		// and pass this instead of the tags array. Passing the tags
+		// array will allow the returned data to contain the 
+		// tag names as keys, whereas usually they would have the
+		// xpath (which in the case of using the functions below
+		// would be complicated)
+		
+		$remap_tags = array();
+		
+		foreach($tags as $tag=>$val){
+			$remap_tags[$val]= sprintf("//*[php:functionString('strtolower', name()) = '%s' ]", $this->checkaddslashes(strtolower(trim($val))));
 		}
 		
-		return $this->ExtractPaths($url, $tags);
+		return $this->ExtractPaths($url, $remap_tags, $tags);
+	}
+	
+	function checkaddslashes($str){       
+		if(strpos(str_replace("\'",""," $str"),"'") !== false){
+			return addslashes($str);
+		}
+		else{
+			return $str;
+		}
 	}
 
 	// multi-dimensional implode. 
