@@ -353,7 +353,9 @@ class Embedbug{
 				$extracted[$key] = array();
 		        
 		        $nodeset = $this->xpath->query("$path");
-
+				
+				if(!$nodeset) continue; // skip malformed or false xpath queries. 
+				
 		        if($nodeset->length > 0){
 
 		            foreach($nodeset as $node){

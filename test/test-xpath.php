@@ -13,9 +13,9 @@ else{
 
 $Embedbug = new Embedbug\Embedbug($url, array(
 	'binarytransfer' => 1,
-	'buffersize'     => 2056,
+	    'buffersize' => 2056,
 	'ssl verifypeer' => false,
-	'header'		 => false
+	        'header' => false
 ),  "</body>", 1024868);
 
 $Embedbug->Execute();
