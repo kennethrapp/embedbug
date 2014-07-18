@@ -2,8 +2,6 @@
 
 EmbedBug is a web scraper/site profiler in php. Designed to return xpath, tag and text content queries in a common array format to make parsing and json APIs easy. 
 
-*uses the random user-agent generator by Luka Pušić
-
     include_once("EmbedBug.php") 
 
 or include it with your [Composer](https://getcomposer.org) project's composer.json:
@@ -13,7 +11,7 @@ or include it with your [Composer](https://getcomposer.org) project's composer.j
     }
 
 and call it:
-    
+    require_once("vendor/autoload.php");
     $EmbedBug = new Embedbug\Embedbug();
 
 Now pass it some urls (either one or multiple) as an array:
@@ -253,11 +251,8 @@ The data array will contain an index for each returned tag, with the tag name as
 								[property] => og:description
 								[content] => Serving the Technologist for more than a decade. IT news, reviews, and analysis.
 							)
-
 					)
-
 			)
-
 	)
 	
 	
@@ -272,3 +267,11 @@ for the matching url and queries until the cache file expires and is deleted.
 	
 
 In the test folder you can find tests which cover each of the examples here.
+
+**known issues/to fix or ignore**
+
+- doesn't do anything with cookies, POST or RESTful APIs, only GET requests
+- doesn't route through proxies or anything either
+- doesn't respect robots.txt
+- doesn't appear to follow redirects
+- SetURLs will still load cUrl handles even when the end result calls a cached file.  
