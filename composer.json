@@ -14,15 +14,14 @@
 		"type": "package",
  		"package": {
  			"name": "lukapusic/random-uagent",
- 			"version": "dev-master",
+ 			"version": "master",
  			"source": {
  				"url": "https://github.com/lukapusic/random-uagent.git",
  				"type": "git",
  				"reference": "origin/master"
  			}
  		}
- 	 }],
-	"minimum-stability":"dev",
+ 	 }],,
 	"require": {
 		"lukapusic/random-uagent":"dev-master"
 	},
