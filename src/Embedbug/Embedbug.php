@@ -1,438 +1,363 @@
 <?php namespace Embedbug;
 
-//http://codingexplained.com/coding/php/solving-xpath-case-sensitivity-with-php
-//https://stackoverflow.com/questions/1625446/problem-with-upper-case-and-lower-case-xpath-functions-in-selenium-ide/1625859#1625859
-//https://stackoverflow.com/questions/953845/how-do-i-perform-a-case-insensitive-search-for-a-node-in-php-xpath?lq=1
-require_once("uagent.php"); // randon user agent generator by Luka Pušić
+// this should work...
+require_once("../../../../vendor/lukapusic/uagent.php"); // random user agent generator by Luka Pušić
 
 class Embedbug{
 
-	private $Content;
-	private $Curl;
-	private $handle;
-	private $terminate_string;
-	private $terminate_length;
-	private $urls;
-	private $doc;
-	private $xpath;
-	private $save_html;
-
-	function __construct($urls, $settings=null, $terminate_string="</head>", $terminate_length=1024, $save_html=false){
-		
-
-		if(is_array($urls)){ 
-			$this->urls = $urls;
-		}
-		else{
-			$this->urls=array($urls);
-		}
-
-		$this->Content = array();
-		$this->Curl = array();
-
-		$this->handle = curl_multi_init();
-
-		$this->terminate_string = $terminate_string;
-		$this->terminate_length = $terminate_length;
-
-		/* for each url, initialize a cUrl object and add it to the array. */
-    	foreach($this->urls as $url){
-
-    		if(filter_var($url, FILTER_VALIDATE_URL) && !array_key_exists($url, $this->Curl)){ 
-        		$this->Curl[$url] = $this->addHandle($url, $settings, $this->handle);	
-        	}
-    	}
-    
-    	libxml_use_internal_errors(true);
-	    libxml_clear_errors();
-
-	    $this->doc = new \DOMDocument();
-		$this->save_html = $save_html;
-		     
-    }
-
-    // return whether the length terminator has been reached
-    
-    function TerminateAtLength($len){
-    	return (is_int($this->terminate_length) && ($len >= $this->terminate_length));    	
-    }
-
-    // return whether the string terminator has been reached
-
-    function TerminateAtString(&$content){
-    	return (is_string($this->terminate_string) && (stripos($content, $this->terminate_string) !== false));
-    }
-
-    /* set content. Content is grouped by url into 'headers'
-    ( an array of headers for each url), and 'content' ( a string 
-    	of content from each url) */
-
-	function SetContent($url, $key, $val){
-		
-		if(!array_key_exists($url, $this->Content)){
-			$this->Content[$url] = array();
-		}
-
-		if(!array_key_exists($key, $this->Content[$url])){ 
-			$this->Content[$url][$key] = array();
-		}
-
-		
-		$this->Content[$url][$key][] = $val;
-		
+	private static $Properties;
+	private static $Caching;
+	private static $CachePath;
+	private static $cURLStack;
+	private static $cURLResponse;
+	private static $cURLHandle;
+	private static $xPath;
+	private static $Doc;
+	
+	public function __set($key, $val)
+	{
+		self::$Properties[$key] = $val;
 	}
-
-	/* retrieve a content group */
-
-	function GetContent($url=null, $key=null){
-
-		if(array_key_exists($url, $this->Content)){
-			if(isset($key, $this->Content[$url][$key])){
-				return $this->Content[$url][$key];
+	
+	public function __get($key)
+	{
+		try
+		{
+			if(array_key_exists($key, self::$Properties))
+			{
+				return self::$Properties[$key];
 			}
-			return $this->Content[$url];
+			else throw new Exception("Property $key not found.");
+		}
+		catch(\Exception $e)
+		{
+			die($e);
+		}
+	}
+	
+	public function __toString()
+	{
+		return print_r(self::$cURLResponse,true);
+	}
+	
+	public function SetCachePath($path)
+	{
+		self::$CachePath = $path;
+	}
+	
+	public function Cache($time)
+	{
+		self::$Caching = $time;
+		return $this;
+	}
+	
+	public function GenerateCacheKey($url, array $query)
+	{
+		$cacheKey = md5(trim(strtolower($url)));
+		
+		foreach($query as $key=>$val)
+		{
+			$cacheKey = md5($cacheKey.$val);
 		}
 		
-		return $this->Content;
+		return $cacheKey;
 	}
+	
+	public function CacheFile($url, array $query, array $content)
+	{	
+		$key = $this->GenerateCacheKey($url, $query);
+			
+		$path = realpath(rtrim(self::$CachePath,"/"))."/"."$key.tmp";
+		file_put_contents($path, serialize($content));
+		chmod($path, 0655);
+	}
+	
+	public function GetCachedFile($key)
+	{
+		$path = realpath(rtrim(self::$CachePath,"/"))."/"."$key.tmp";
+		
+		$content=null;
+		
+		if(is_readable($path))
+		{
+			$content =  unserialize(file_get_contents($path));
+			if (((int)self::$Caching > 0) && (filemtime($path) < time() - self::$Caching))
+			{
+				unlink($path);
+			}
+		}
+	
+		return $content;
+	}
+	
+	public function __construct()
+	{
+		self::$cURLStack  = array();
+		self::$cURLHandle = curl_multi_init();
+		self::$Doc = new \DOMDocument();
+		self::$cURLResponse = array();
+		self::$CachePath = sys_get_temp_dir();
+		
+		self::$Caching = 0;
 
+		$this->terminate_length = 10240000;
+		$this->terminate_string = "</body>";
+		
+		libxml_use_internal_errors(true);
+	    libxml_clear_errors();
+	}
+	
+	public function SetURLs(array $urls, $cURLSettings = array())
+	{
+		foreach($urls as $url)
+		{
+			if(filter_var($url, FILTER_VALIDATE_URL))
+			{ 
+				self::$cURLStack[md5(trim(strtolower($url)))] = $this->AddcURLHandle($url, $cURLSettings, self::$cURLHandle);
+			}
+		}	
+	}
+	
+	public function GetXPaths($url, array $paths)
+	{
+	
+		$key = $this->GenerateCacheKey($url, $paths);
+		
+		if($cache = $this->GetCachedFile($key))
+		{
+			return $cache;
+		}
+		
+		$this->Execute();
+		
+		$extracted = array(
+					"url" => $this->GetInfo($url, 'effective url'),
+					"hash"=> md5(trim(strtolower($url))),
+			  "http-code" => $this->GetInfo($url, 'http code'),
+		   "content-type" => $this->GetInfo($url, 'content type'),
+			       "data" => array()
+		);
+		
+		if($contentArray = $this->GetContent($url, 'content'))
+		{
+			$content = implode("", $contentArray);
+			
+       		self::$Doc->loadHTML($content);
+		    self::$xPath = new \DOMXPath(self::$Doc);
+			self::$xPath->registerNamespace('php', 'http://php.net/xpath');
+			self::$xPath->registerPhpFunctions(array('stripos','strtolower'));	
+			
+			$nodeset=null;
+			
+			foreach($paths as $key => $path)
+			{
+				$path = trim($path);
+				
+				$nodeset = self::$xPath->query("$path");
+				$lcpath = strtolower($path);
+				
+				$extracted['hash'] = md5($extracted['hash'].$path);
+		
+				if(($nodeset !== FALSE) && ($nodeset->length > 0))
+				{
+					foreach ($nodeset as $node)
+					{
+					  $nodearray = array();
+					  
+						$nodearray['tag']=$node->tagName;
 
-	/*
-	return info about a transfer. 
-
-	 both $url and $key can be an array, string or null. 
-
-	"url"
-	"content type"
-	"http code"
-	"header size"
-	"request size"
-	"filetime"
-	"ssl verify result"
-	"redirect count"
-	"total time"
-	"namelookup time"
-	"connect time"
-	"pretransfer time"
-	"size upload"
-	"size download"
-	"speed_download"
-	"speed upload"
-	"download_content length"
-	"upload_content length"
-	"starttransfer time"
-	"redirect time"
-	"certinfo" 
-
-	*/
+		                foreach($node->attributes as $attr)
+						{	
+		                    $name = $attr->name;
+		                    $val = $attr->value;	
+		                    $nodearray[$name] = $val;
+		                }
+						
+						if(count($nodearray))
+						{
+							$extracted['data'][$key][]  = $nodearray;
+							
+		                }
+					}
+				}
+			}
+		}
+		
+		$this->CacheFile($url, $paths, $extracted);
+		return $extracted;
+	}
+	
+	public function GetTags($url, array $tags)
+	{
+		$remap_tags = array();
+		
+		foreach($tags as $tag=>$val)
+		{
+			$remap_tags[$val]= sprintf("//*[php:functionString('strtolower', name()) = '%s' ]", addslashes(strtolower(trim($val))));
+		}
+		
+		return $this->GetXPaths($url, $remap_tags);
+	}
+	
+	public function GetText($url, array $tags, $text)
+	{
+		$remap_tags = array();
+		
+		foreach($tags as $tag)
+		{
+			$remap_tags[$tag]= sprintf("//%s[contains(text(), '%s')]", $tag, addslashes(trim($text)));
+		}
+		
+		return $this->GetXPaths($url, $remap_tags);
+	}
+	
+	public function GetProfile($url)
+	{
+		$paths = array(
+			      "title" => "//title",
+			"description" => "//meta[contains(@name, 'description')]",
+			   "facebook" => "//meta[contains(@property, 'og:')]",
+			    "twitter" => "//meta[contains(@property, 'twitter:')]",
+			     "google" => "//meta[contains(@property, 'itemprop')]"
+		);
+		
+		return $this->GetXPaths($url, $paths);
+	}
 
 	
-	function GetInfo($url=null, $key=null){
-
-		$curl_const = null;
-
-		if(is_string($key)){
-			$curl_const = 'CURLINFO_'.trim(strtoupper(str_replace(' ', '_', $key)));
-		}
-		else if(is_array($key)){
-			$curl_const = array();
-			foreach($key as $k){
-				$curl_const[] = 'CURLINFO_'.trim(strtoupper(str_replace(' ', '_', $k)));
-			}
-		}
+	public function AddcURLHandle($url, array $cURLSettings, $cURLHandle) // can't typehint resources
+	{
+		$cURL = curl_init();
 		
-		$content = array();
-		// normalize url list. Match $url to either a string or array passed
-		// to the constructor. Otherwise, take everything.
-
-		if(is_string($url) && array_key_exists($url, $this->Curl)){
-
-			if(is_string($curl_const)){ 
-				if(!empty($curl_const) && defined($curl_const)){ 
-					return curl_getinfo($this->Curl[ $url ], constant($curl_const));
-				}
-				else{
-					return curl_getinfo($this->Curl[$url]);
-				}
-			}
-			
-			else if(is_array($curl_const)){
-				foreach($curl_const as $c){
-					if(!empty($c) && defined($c)){
-						$content[] =curl_getinfo($this->Curl[ $url ], constant($c));
-					}
-				}
-
-				return $content;	
-			}
-			
-			return curl_getinfo($this->Curl[ $url ]); // no constant - return all data
-		}
-
-		// url is array, take the intersection
-
-		else if(is_array($url)){
-			
-			$filtered_urls = array_intersect($url, $this->urls);
-
-			if(count($filtered_urls)){
-
-				foreach($filtered_urls as $filtered_url){
-
-					if(is_string($curl_const)){ 
-						if(!empty($curl_const) && defined($curl_const)){ 
-							$content[] = curl_getinfo($this->Curl[ $filtered_url ], constant($curl_const));
-						}
-						else{
-							$content[] = curl_getinfo($this->Curl[$filtered_url]);
-						}
-					}
-					
-					else if(is_array($curl_const)){
-						foreach($curl_const as $c){
-							if(!empty($c) && defined($c)){
-								$content[] =curl_getinfo($this->Curl[ $url ], constant($c));
-							}
-						}
-					}
-				}
-
-				return $content;
-			}
-		}
-
-		// url was not passed, take everything.
-
-		else if(is_string($this->urls)){ // as a string
-			if(!empty($curl_const) && defined($curl_const)){ 
-				return curl_getinfo($this->Curl[ $this->urls ], constant($curl_const));
-			}
-			else{
-				return curl_getinfo($this->Curl[ $this->urls ]);
-			}
-		}
+		$ref = $this;
 		
-		else if(is_array($this->urls)){ // as an array
-			foreach($this->urls as $url){
-				if(!empty($curl_const) && defined($curl_const)){ 
-					$content[] = curl_getinfo($this->Curl[ $url ], constant($curl_const));
-				}
-				else{
-					$content[] = curl_getinfo($this->Curl[ $url ]);
-				}
-			}
-			return $content;
-		}
-
-		return null;
-
-	}
-
-
-	/* set a single curl option */
-
-	 function CurlOpt($ch, $key, $opt){
+		$this->cURLSetOpts($cURL, array(
+        	           'url' => $url,
+        	'returntransfer' => 1,
+        	        'header' => 1,
+        	'connecttimeout' => 5,
+        	       'timeout' => 15,
+        	     'useragent' => random_uagent() // select a random user agent by default
+        ));
+		
+		if(count($cURLSettings))
+		{ 
+            $this->cURLSetOpts($cURL, $cURLSettings);
+        }
+		
+		$this->cURLSetOpt($cURL, 'headerfunction',  function($ch, $header) use($url, $ref)
+		{   
+			/* if the url doesn't return a 200 error, abort. */
+			
+        	if((int)$ref->GetInfo($url, 'http code') !== 200)
+			{
+				return -1;
+			}			     
+            
+            $ref->SetContent($url, 'headers', $header);     
+      	    
+			return strlen($header);
         
+        });
+		
+		$this->cURLSetOpt($cURL, 'writefunction', function($ch, $string) use($url, $ref)
+		{      
+			$len = strlen($string);
+	
+			/* if either the length of the content exceeds the termination length or
+			the terminate string has been found, end the process, otherwise, save the
+			chunk and continue. */
+			
+			if(($len >= $ref->terminate_length) || (stripos($string, $ref->terminate_string)))
+			{
+				return -1;
+			}
+			
+			$ref->SetContent($url, 'content',  $string); 
+            return $len;
+			
+        }); 
+
+        curl_multi_add_handle(self::$cURLHandle, $cURL);
+
+        return $cURL;
+		
+	}
+	
+	/* set a single curl option */
+	public function cURLSetOpt($ch, $key, $opt)
+	{
         $curl_const = 'CURLOPT_'.trim(strtoupper(str_replace(' ', '_', $key)));
         
-        if(defined($curl_const)){ 
+        if(defined($curl_const))
+		{ 
         	curl_setopt($ch, constant($curl_const), $opt);
         }
     }
 
     /* set multiple curl options */
-
-    function CurlOpts($ch, array $options){
-    	foreach($options as $key=>$val){
-    		$this->CurlOpt($ch, $key, $val);
+    public function cURLSetOpts($ch, array $options)
+	{
+    	foreach($options as $key=>$val)
+		{
+    		$this->cURLSetOpt($ch, $key, $val);
     	}
-    }
-
-    /* add a curl handle indexed by url */
-
-    function addHandle($url, $settings, $handle){
-
-        $cUrl = curl_init();
- 		
- 		$ref = $this;
-        
-        $this->CurlOpts($cUrl, array(
-        	'url'			=> $url,
-        	'returntransfer'=> 1,
-        	'header'		=> 1,
-        	'connecttimeout'=> 5,
-        	'timeout'		=> 15,
-        	'useragent'	    => random_uagent() // select a random user agent by default
-        ));
-
-        if(is_array($settings)){ 
-            $this->CurlOpts($cUrl, $settings);
-        }
-
-        // store the headers 
-        $this->CurlOpt($cUrl, 'headerfunction',  function($ch, $header) use($url, $ref){   
-
-        	if((int)$ref->GetInfo($url, 'http code') !== 200) return -1;     
-            
-            $ref->SetContent($url,'headers', $header);    
-      	    
-      	    return strlen($header);
-        
-        });
-
-       	/* store the content. 
-       	If the string and length limits are enabled, slightly more content than
-       	indicated may be taken, based on the buffersize setting passed to the
-       	constructor. */
-
- 		$this->CurlOpt($cUrl, 'writefunction', function($ch, $string) use($url, $ref){
-
- 			// if the code isn't 200, abort.
- 			//if($ref->GetInfo($url, 'http code') !== 200) return -1;    
-
-          	// if the terminator string exists, end. 
-            if($ref->TerminateAtString($string)) return -1;
-            
-        	// if the size limit has been reached, end.
-            if($ref->TerminateAtLength(strlen($string))) return -1;
-            
- 			$ref->SetContent($url,'content',  ($string)); 
-
-            return strlen($string);
-        }); 
-
-         curl_multi_add_handle($handle, $cUrl);
-
-        return $cUrl;
-    } 
-
-    function __destruct(){
-        curl_multi_close($this->handle);
-    }
-
-    function Execute(){    
-
-        $flag=null;
-
-        do{
-            curl_multi_exec($this->handle, $flag);
-        }while($flag > 0);
     }
 	
-	function ExtractPaths($url=null, array $paths){
+	public function SetContent($url, $key, $val)
+	{
+		$url = md5(trim(strtolower($url)));
 		
-		$content = array();
-
-    	if($url === null){
-    		$url = $this->urls;
-    	}
-
-    	if(is_array($url)){
-    		
-    		foreach($url as $u){
-    			$content[$u] = $this->ExtractPaths($u, $paths);
-    		}
-
-    		return $content;
-    	}
-
-    	if($contentArray = $this->GetContent($url, 'content')){ 
-
-    		$content=$this->multi_implode($contentArray, "");
-
-		    $extracted = array();
-
-       		$this->doc->loadHTML($content);
-		    $this->xpath = new \DOMXPath($this->doc);
-			
-			$this->xpath->registerNamespace('php', 'http://php.net/xpath');
-			$this->xpath->registerPhpFunctions(array('stripos','strtolower'));			
-
-		    foreach($paths as $key=>$path){
-			
-				$extracted[$key] = array();
-		        
-		        $nodeset = $this->xpath->query("$path");
-				
-				if(!$nodeset) continue; // skip malformed or false xpath queries. 
-				
-		        if($nodeset->length > 0){
-
-		            foreach($nodeset as $node){
-
-		                $nodearray = array();
-
-		                foreach($node->attributes as $attr){
-		                    $name = $attr->name;
-		                    $val = $attr->value;
-		                    $nodearray[$name] = $val;
-		                }
-
-		                if(isset($node->textContent)){
-		                    $nodearray['textcontent']=$node->textContent;
-		                }
-						
-		                if(count($nodearray)){
-							$extracted[$key][]  = $nodearray;
-		                }
-		            }
-		        }
-		    }
-
-			if($this->save_html === true){
-				$extracted['xml'] = $this->doc->saveHTML();
-			}
-
-			
-		   return $extracted;
+		if(!array_key_exists($url, self::$cURLResponse))
+		{
+			self::$cURLResponse[$url] = array();
 		}
 
+		if(!array_key_exists($key, self::$cURLResponse[$url]))
+		{ 
+			self::$cURLResponse[$url][$key] = array();
+		}
+		
+		self::$cURLResponse[$url][$key][] = $val;
+	}
+	
+	public function GetContent($url=null, $key=null)
+	{
+		$url = md5(trim(strtolower($url)));
+		
+		if(array_key_exists($url, self::$cURLResponse))
+		{
+			if(isset($key, self::$cURLResponse[$url][$key]))
+			{
+				return self::$cURLResponse[$url][$key];
+			}
+			
+		}
+		
 		return null;
 	}
+	
+	public function GetInfo($url=null, $key=null)
+	{
+		$curl_const = 'CURLINFO_'.trim(strtoupper(str_replace(' ', '_', $key)));
+		$url = md5(trim(strtolower($url)));
 
-    /* extract html tags and content from a previously taken url.*/
-
-    function ExtractTags($url = null, array $tags){
-
-		// build a new array with the tags as keys and xpaths as values
-		// and pass this instead of the tags array. Passing the tags
-		// array will allow the returned data to contain the 
-		// tag names as keys, whereas usually they would have the
-		// xpath (which in the case of using the functions below
-		// would be complicated)
-		
-		$remap_tags = array();
-		
-		foreach($tags as $tag=>$val){
-			$remap_tags[$val]= sprintf("//*[php:functionString('strtolower', name()) = '%s' ]", $this->checkaddslashes(strtolower(trim($val))));
+		if(array_key_exists($url, self::$cURLStack) && defined($curl_const))
+		{
+			return curl_getinfo(self::$cURLStack[$url], constant($curl_const));
 		}
 		
-		return $this->ExtractPaths($url, $remap_tags, $tags);
+		return null;
 	}
 	
-	function checkaddslashes($str){       
-		if(strpos(str_replace("\'",""," $str"),"'") !== false){
-			return addslashes($str);
-		}
-		else{
-			return $str;
-		}
-	}
+	 public function Execute()
+	 {
+        $flag = null;
 
-	// multi-dimensional implode. 
-	function multi_implode($array, $glue) {
-    	
-    	$ret = '';
-
-	    foreach ($array as $item) {
-	        if (is_array($item)) {
-	            $ret .= $this->multi_implode(array_values($item), $glue);
-	        } else {
-	            $ret .= $item . $glue;
-	        }
-	    }
-
-	    return $ret;
-	}
-
+        do
+		{
+            curl_multi_exec(self::$cURLHandle, $flag);
+        
+		}while($flag > 0);
+    }
 }

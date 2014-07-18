@@ -1,16 +1,30 @@
 {
   "name": "kennethrapp/embedbug",
   "version": "1.0.0-alpha",
-  "description": "read and format metadata from a remote url",
+  "description": "web crawler and profiler for PHP",
   "license": "MIT",
-  "keywords": [ "php"],
+  "keywords": ["php","web crawler"],
   "authors": [
     {
       "name": "Kenneth Rapp",
       "email": "kennethrapp1@gmail.com"
     }
   ],
-  
+	"repositories":[{ 
+		"type": "package",
+ 		"package": {
+ 			"name": "lukapusic/random-uagent",
+ 			"version": "dev-master",
+ 			"source": {
+ 				"url": "https://github.com/hlukapusic/random-uagent.git",
+ 				"type": "git",
+ 				"reference": "origin/master"
+ 			}
+ 		}
+ 	 }],
+	"require": {
+		"lukapusic/random-uagent":"dev-master"
+	},
 	"autoload": {
 	    "psr-0": {
 	      "Embedbug": "src/"

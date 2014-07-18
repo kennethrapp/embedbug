@@ -1,0 +1,274 @@
+#EmbedBug
+
+EmbedBug is a web scraper/site profiler in php. Designed to return xpath, tag and text content queries in a common array format to make parsing and json APIs easy. 
+
+*uses the random user-agent generator by Luka Pušić
+
+    include_once("EmbedBug.php") 
+
+or include it with your [Composer](https://getcomposer.org) project's composer.json:
+   
+    "require":{
+        "kennethrapp/embedbug:"dev-master"
+    }
+
+and call it:
+    
+    $EmbedBug = new Embedbug\Embedbug();
+
+Now pass it some urls (either one or multiple) as an array:
+
+    $EmbedBug->SetURLs(array("http://arstechnica.com"));
+	
+
+
+Methods to handle queries pair a url with either an array of xpaths, an array of tag names, or a text value. 
+Each of these methods will return an array containing the url, an md5 signature (of the url and each of the paths or tags, 
+representing the query in total), the returned http code and content type, and a 'data' array containing the actual result of the query.
+    
+    array(
+        [url] => http://arstechnica.com
+        [hash] => 23c07747b6f003e06597865f8e3628a2
+        [http-code] => 200
+        [content-type] => text/html; charset=UTF-8
+        [data] => Array ( ... )
+    )
+
+The data array will contain an index for each returned tag, with the tag name as the index, and all attributes (including the text content) as keys.
+
+**retrieve tags by name**
+
+    $EmbedBug->GetTags( string $url, array $tags); 
+
+*(note $tags is a simple array of tag names)*
+	
+```php
+   $result = $EmbedBug->GetTags("http://arstechnica.com", array("meta"));
+   var_dump($result);
+```
+    
+    Array
+    (
+    [url] => http://arstechnica.com
+    [hash] => 203291d26e9b01e08e40956308150364
+    [http-code] => 200
+    [content-type] => text/html; charset=UTF-8
+    [data] => Array
+        (
+            [meta] => Array
+                (
+                    [0] => Array
+                        (
+                            [tag] => meta
+                            [name] => application-name
+                            [content] => Ars Technica
+                        )
+
+                    [1] => Array
+                        (
+                            [tag] => meta
+                            [name] => msapplication-starturl
+                            [content] => http://arstechnica.com/
+                        )
+
+                    [2] => Array
+                        (
+                            [tag] => meta
+                            [name] => msapplication-tooltip
+                            [content] => Ars Technica: Serving the technologist for 1.2 decades
+                        )
+                     (... etc etc etc)
+              )
+        )
+    )
+	
+**retrieve tags by xpath**
+
+    $EmbedBug->GetXPaths( string $url, array $paths); 
+
+*(note $paths is an array with key=query name, value=associated xpath)*
+
+```php
+   $result = $EmbedBug->GetXPaths("http://arstechnica.com", array("open-graph"=>"//meta[contains(@property, 'og:')]"));
+ var_dump($result);
+```
+
+    Array
+    (
+    [url] => http://arstechnica.com
+    [hash] => cb1d01f1025ed5272482e44a1fe6d8d2
+    [http-code] => 200
+    [content-type] => text/html; charset=UTF-8
+    [data] => Array
+        (
+            [open-graph] => Array
+                (
+                    [0] => Array
+                        (
+                            [tag] => meta
+                            [property] => og:site_name
+                            [content] => Ars Technica
+                        )
+
+                    [1] => Array
+                        (
+                            [tag] => meta
+                            [property] => og:title
+                            [content] => Ars Technica
+                        )
+
+                    [2] => Array
+                        (
+                            [tag] => meta
+                            [property] => og:type
+                            [content] => website
+                        )
+                    (etc..)
+            )))
+
+**retrieve text content b**
+
+    $EmbedBug->GetText( string $url, array $tags, string $text); 
+
+*(note $tags is a simple array of tag names or *, $text will apply to all of the tags)*
+
+```php
+   $result = $EmbedBug->GetText("http://arstechnica.com", array("*"), "NSA");
+    var_dump($result);
+ 
+	 Array
+	(
+		[url] => http://arstechnica.com
+		[hash] => 6b51a141c197fce198ed1a9a4129324f
+		[http-code] => 200
+		[content-type] => text/html; charset=UTF-8
+		[data] => Array
+			(
+				[*] => Array
+					(
+						[0] => Array
+							(
+								[tag] => a
+								[class] => heading
+								[href] => http://arstechnica.com/tech-policy/2014/07/snowden-nsa-employees-routinely-pass-around-intercepted-nude-photos/
+							)
+
+						[1] => Array
+							(
+								[tag] => a
+								[href] => http://arstechnica.com/tech-policy/2014/07/snowden-nsa-employees-routinely-pass-around-intercepted-nude-photos/
+							)
+
+						[2] => Array
+							(
+								[tag] => a
+								[href] => http://arstechnica.com/security/2014/07/google-project-zero-hopes-to-find-zero-day-vulnerabilities-before-the-nsa/
+							)
+
+					)
+
+			)
+
+	)
+	
+
+**retrieve site profile**
+
+    $EmbedBug->GetProfile( string $url); 
+
+*this will retrieve an array containing any open graph, twitter card tags, the title and meta description if it exists. Social media tags will be grouped under 'facebook', 'twitter' and 'google', and meta description under 'description'*
+
+```php
+   $result = $EmbedBug->GetProfile("http://arstechnica.com");
+   var_dump($result);
+	
+	Array
+	(
+		[url] => http://arstechnica.com
+		[hash] => 23c07747b6f003e06597865f8e3628a2
+		[http-code] => 200
+		[content-type] => text/html; charset=UTF-8
+		[data] => Array
+			(
+				[title] => Array
+					(
+						[0] => Array
+							(
+								[tag] => title
+							)
+
+					)
+
+				[description] => Array
+					(
+						[0] => Array
+							(
+								[tag] => meta
+								[name] => description
+								[content] => Serving the Technologist for more than a decade. IT news, reviews, and analysis.
+							)
+
+					)
+
+				[facebook] => Array
+					(
+						[0] => Array
+							(
+								[tag] => meta
+								[property] => og:site_name
+								[content] => Ars Technica
+							)
+
+						[1] => Array
+							(
+								[tag] => meta
+								[property] => og:title
+								[content] => Ars Technica
+							)
+
+						[2] => Array
+							(
+								[tag] => meta
+								[property] => og:type
+								[content] => website
+							)
+
+						[3] => Array
+							(
+								[tag] => meta
+								[property] => og:url
+								[content] => http://arstechnica.com/
+							)
+
+						[4] => Array
+							(
+								[tag] => meta
+								[property] => og:image
+								[content] => http://cdn.arstechnica.net/wp-content/themes/arstechnica/assets/images/ars-logo-open-grey.png
+							)
+
+						[5] => Array
+							(
+								[tag] => meta
+								[property] => og:description
+								[content] => Serving the Technologist for more than a decade. IT news, reviews, and analysis.
+							)
+
+					)
+
+			)
+
+	)
+	
+	
+**caching queries**
+
+EmbedBug can cache queries in PHP's serialize format to temp files in a provided path. If the Cache() method is chained with a time 
+as the argument (in seconds) to one of the above methods, the temp file will be created and will be accessed prior to calling cUrl
+for the matching url and queries until the cache file expires and is deleted. 
+
+	$EmbedBug->SetCachePath(realpath("path/to/cache"));
+	$EmbedBug->Cache(int $time)->*any of the above queries*
+	
+
+In the test folder you can find tests which cover each of the examples here.
