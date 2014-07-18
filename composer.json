@@ -4,14 +4,15 @@
   "description": "web crawler and profiler for PHP",
   "license": "MIT",
   "keywords": ["php","web crawler"],
+  "minimum-stability" : "dev",
   "authors": [
     {
       "name": "Kenneth Rapp",
       "email": "kennethrapp1@gmail.com"
     }
   ],
-	"repositories":[{ 
-		"type": "package",
+  "repositories":[{ 
+	    "type": "package",
  		"package": {
  			"name": "lukapusic/random-uagent",
  			"version": "master",
