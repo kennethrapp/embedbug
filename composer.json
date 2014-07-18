@@ -16,7 +16,7 @@
  			"name": "lukapusic/random-uagent",
  			"version": "dev-master",
  			"source": {
- 				"url": "https://github.com/hlukapusic/random-uagent.git",
+ 				"url": "https://github.com/lukapusic/random-uagent.git",
  				"type": "git",
  				"reference": "origin/master"
  			}
