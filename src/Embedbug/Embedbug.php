@@ -1,7 +1,5 @@
 <?php namespace Embedbug;
 
-// this should work...
-require_once("../../../../vendor/lukapusic/uagent.php"); // random user agent generator by Luka Pušić
 
 class Embedbug{
 
@@ -237,7 +235,7 @@ class Embedbug{
         	        'header' => 1,
         	'connecttimeout' => 5,
         	       'timeout' => 15,
-        	     'useragent' => random_uagent() // select a random user agent by default
+        	     'useragent' =>$_SERVER['HTTP_USER_AGENT']
         ));
 		
 		if(count($cURLSettings))

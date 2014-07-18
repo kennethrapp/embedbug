@@ -11,21 +11,6 @@
       "email": "kennethrapp1@gmail.com"
     }
   ],
-  "repositories":[{ 
-	    "type": "package",
- 		"package": {
- 			"name": "lukapusic/random-uagent",
- 			"version": "master",
- 			"source": {
- 				"url": "https://github.com/lukapusic/random-uagent.git",
- 				"type": "git",
- 				"reference": "origin/master"
- 			}
- 		}
- 	 }],
-	"require": {
-		"lukapusic/random-uagent":"dev-master"
-	},
 	"autoload": {
 	    "psr-0": {
 	      "Embedbug": "src/"
