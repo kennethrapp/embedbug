@@ -120,8 +120,8 @@ class Embedbug{
 	{
 	
 		$key = $this->GenerateCacheKey($url, $paths);
-		
-		if($cache = $this->GetCachedFile($key))
+			
+		if((self::$Caching !== 0) && ($cache = $this->GetCachedFile($key)))
 		{
 			return $cache;
 		}
@@ -130,7 +130,7 @@ class Embedbug{
 		
 		$extracted = array(
 					"url" => $this->GetInfo($url, 'effective url'),
-					"hash"=> md5(trim(strtolower($url))),
+				   "hash" => md5(trim(strtolower($url))),
 			  "http-code" => $this->GetInfo($url, 'http code'),
 		   "content-type" => $this->GetInfo($url, 'content type'),
 			       "data" => array()
@@ -138,6 +138,7 @@ class Embedbug{
 		
 		if($contentArray = $this->GetContent($url, 'content'))
 		{
+	
 			$content = implode("", $contentArray);
 			
        		self::$Doc->loadHTML($content);
@@ -158,11 +159,18 @@ class Embedbug{
 		
 				if(($nodeset !== FALSE) && ($nodeset->length > 0))
 				{
+				
+					
+					
 					foreach ($nodeset as $node)
 					{
 					  $nodearray = array();
-					  
-						$nodearray['tag']=$node->tagName;
+					
+						var_dump($node);
+					 
+						$nodearray['tag'] = $node->tagName;
+						$nodearray['tag'] = $node->textContent;
+						$nodearray['value'] = $node->nodeValue;
 
 		                foreach($node->attributes as $attr)
 						{	
@@ -181,7 +189,11 @@ class Embedbug{
 			}
 		}
 		
-		$this->CacheFile($url, $paths, $extracted);
+		if(self::$Caching !== 0)
+		{
+			$this->CacheFile($url, $paths, $extracted);
+		}
+		
 		return $extracted;
 	}
 	
