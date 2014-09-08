@@ -158,16 +158,11 @@ class Embedbug{
 				$extracted['hash'] = md5($extracted['hash'].$path);
 		
 				if(($nodeset !== FALSE) && ($nodeset->length > 0))
-				{
-				
-					
-					
+				{					
 					foreach ($nodeset as $node)
 					{
 					  $nodearray = array();
-					
-						var_dump($node);
-					 
+			
 						$nodearray['tag'] = $node->tagName;
 						$nodearray['tag'] = $node->textContent;
 						$nodearray['value'] = $node->nodeValue;
