@@ -174,7 +174,27 @@ The data array will contain an index for each returned tag, with the tag name as
 
     $EmbedBug->GetProfile( string $url); 
 
-*this will retrieve an array containing any open graph, twitter card tags, the title and meta description if it exists. Social media tags will be grouped under 'facebook', 'twitter' and 'google', and meta description under 'description'*
+*this will retrieve an array containing any open graph, twitter card tags, the title and meta description if it exists, and
+a number of other useful tags (including robots and rel tags) as shown here (keys will map to the xpaths as shown):
+
+"robots" => "//meta[contains(@name,'robots')",
+"title" => "//title[string-length(text()) > 0]",
+"refresh" => "//meta[contains(http-equiv,'refresh']",
+"author" => "//meta[contains(@name,'author')",
+"keywords" => "//meta[contains(@name, 'keywords')]",
+"description" => "//meta[contains(@name, 'description')]",
+"facebook" => "//meta[contains(@property, 'og:')]",
+"twitter" => "//meta[contains(@property, 'twitter:')]",
+"google" => "//meta[contains(@property, 'itemprop')]",
+"copyright" => "//*[contains(@rel,'copyright')",
+"license" => "//*[contains(@rel,'license')",
+"alternate" => "//*[contains(@rel,'alternate')",
+"rel-author" => "//*[contains(@rel,'author')",
+"rel-publisher" => "//*[contains(@rel,'publisher')",
+"next" => "//*[contains(@rel,'next')",
+"prev" => "//*[contains(@rel,'prev')"
+
+Social media tags will be grouped under 'facebook', 'twitter' and 'google', and meta description under 'description'*
 
 ```php
    $result = $EmbedBug->GetProfile("http://arstechnica.com");
