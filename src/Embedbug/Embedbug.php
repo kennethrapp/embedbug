@@ -266,12 +266,6 @@ class Embedbug{
         
         $this->cURLSetOpt($cURL, 'headerfunction',  function($ch, $header) use($url, $ref)
         {   
-            /* if the url doesn't return a 200 error, abort. */
-            if((int)$ref->GetInfo($url, 'http code') !== 200)
-            {
-                return -1;
-            }                
-            
             $ref->SetContent($url, 'headers', $header);     
             
             return strlen($header);        
