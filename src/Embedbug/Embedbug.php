@@ -218,9 +218,10 @@ class Embedbug{
     
     public function GetProfile($url)
     {
+		// enforce content attributes 
         $paths = array(
 			  "robots" => "//meta[contains(@name,'robots')",
-			   "title" => "//title",
+			   "title" => "//title[string-length(text()) > 0]",
 			 "refresh" => "//meta[contains(http-equiv,'refresh']",
 			  "author" => "//meta[contains(@name,'author')",
 			"keywords" => "//meta[contains(@name, 'keywords')]",
