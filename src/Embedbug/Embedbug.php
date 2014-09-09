@@ -219,14 +219,27 @@ class Embedbug{
     public function GetProfile($url)
     {
         $paths = array(
-                  "title" => "//title",
-            "description" => "//meta[contains(@name, 'description')]",
-               "facebook" => "//meta[contains(@property, 'og:')]",
-                "twitter" => "//meta[contains(@property, 'twitter:')]",
-                 "google" => "//meta[contains(@property, 'itemprop')]"
+			  "robots" => "//meta[contains(@name,'robots')",
+			   "title" => "//title",
+			 "refresh" => "//meta[contains(http-equiv,'refresh']",
+			  "author" => "//meta[contains(@name,'author')",
+			"keywords" => "//meta[contains(@name, 'keywords')]",
+		 "description" => "//meta[contains(@name, 'description')]",
+			"facebook" => "//meta[contains(@property, 'og:')]",
+			 "twitter" => "//meta[contains(@property, 'twitter:')]",
+			  "google" => "//meta[contains(@property, 'itemprop')]",
+		   "copyright" => "//*[contains(@rel,'copyright')",
+			 "license" => "//*[contains(@rel,'license')",
+		   "alternate" => "//*[contains(@rel,'alternate')",
+		  "rel-author" => "//*[contains(@rel,'author')",
+	   "rel-publisher" => "//*[contains(@rel,'publisher')",
+				"next" => "//*[contains(@rel,'next')",
+			    "prev" => "//*[contains(@rel,'prev')"
         );
         
-        return $this->GetXPaths($url, $paths);
+        $profile =  $this->GetXPaths($url, $paths);
+		
+		return $profile;
     }
 
     
