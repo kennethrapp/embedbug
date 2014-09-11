@@ -110,10 +110,7 @@ class Embedbug{
     {
         foreach($urls as $url)
         {
-            if(filter_var($url, FILTER_VALIDATE_URL))
-            { 
-                self::$cURLStack[md5(trim(strtolower($url)))] = $this->AddcURLHandle($url, $cURLSettings, self::$cURLHandle);
-            }
+            self::$cURLStack[md5(trim(strtolower($url)))] = $this->AddcURLHandle($url, $cURLSettings, self::$cURLHandle);
         }   
     }
     
