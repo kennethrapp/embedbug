@@ -217,7 +217,7 @@ class Embedbug{
     {
 		// enforce content attributes 
         $paths = array(
-			  "robots" => "//meta[contains(@name,'robots')",
+			  "robots" => "//meta[contains(@name,'robots')]",
 			   "title" => "//title[string-length(text()) > 0]",
 			 "refresh" => "//meta[contains(http-equiv,'refresh']",
 			  "author" => "//meta[contains(@name,'author')",
@@ -226,13 +226,13 @@ class Embedbug{
 			"facebook" => "//meta[contains(@property, 'og:')]",
 			 "twitter" => "//meta[contains(@property, 'twitter:')]",
 			  "google" => "//meta[contains(@property, 'itemprop')]",
-		   "copyright" => "//*[contains(@rel,'copyright')",
-			 "license" => "//*[contains(@rel,'license')",
-		   "alternate" => "//*[contains(@rel,'alternate')",
-		  "rel-author" => "//*[contains(@rel,'author')",
-	   "rel-publisher" => "//*[contains(@rel,'publisher')",
-				"next" => "//*[contains(@rel,'next')",
-			    "prev" => "//*[contains(@rel,'prev')"
+		   "copyright" => "//*[contains(@rel,'copyright')]",
+			 "license" => "//*[contains(@rel,'license')]",
+		   "alternate" => "//*[contains(@rel,'alternate')]",
+		  "rel-author" => "//*[contains(@rel,'author')]",
+	   "rel-publisher" => "//*[contains(@rel,'publisher')]",
+				"next" => "//*[contains(@rel,'next')]",
+			    "prev" => "//*[contains(@rel,'prev')]"
         );
         
         $profile =  $this->GetXPaths($url, $paths);
