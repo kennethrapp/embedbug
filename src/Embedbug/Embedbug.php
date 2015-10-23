@@ -137,7 +137,19 @@ class Embedbug{
         {
             $content = implode("", $contentArray);
             
-            self::$Doc->loadHTML($content);
+            self::$Doc->loadHTML('<?xml encoding="UTF-8">' . $content);
+
+            foreach (self::$Doc->childNodes as $item)
+            {
+                if ($item->nodeType == XML_PI_NODE)
+                {
+                    self::$Doc->removeChild($item); // remove hack
+                    self::$Doc->encoding = 'UTF-8'; // insert proper
+                }
+            }
+    
+        
+
             self::$xPath = new \DOMXPath(self::$Doc);
             self::$xPath->registerNamespace('php', 'http://php.net/xpath');
             self::$xPath->registerPhpFunctions(array('stripos','strtolower'));  
@@ -215,29 +227,29 @@ class Embedbug{
     
     public function GetProfile($url)
     {
-		// enforce content attributes 
+        // enforce content attributes 
         $paths = array(
-			  "robots" => "//meta[contains(@name,'robots')]",
-			   "title" => "//title[string-length(text()) > 0]",
-			 "refresh" => "//meta[contains(http-equiv,'refresh']",
-			  "author" => "//meta[contains(@name,'author')",
-			"keywords" => "//meta[contains(@name, 'keywords')]",
-		 "description" => "//meta[contains(@name, 'description')]",
-			"facebook" => "//meta[contains(@property, 'og:')]",
-			 "twitter" => "//meta[contains(@property, 'twitter:')]",
-			  "google" => "//meta[contains(@property, 'itemprop')]",
-		   "copyright" => "//*[contains(@rel,'copyright')]",
-			 "license" => "//*[contains(@rel,'license')]",
-		   "alternate" => "//*[contains(@rel,'alternate')]",
-		  "rel-author" => "//*[contains(@rel,'author')]",
-	   "rel-publisher" => "//*[contains(@rel,'publisher')]",
-				"next" => "//*[contains(@rel,'next')]",
-			    "prev" => "//*[contains(@rel,'prev')]"
+              "robots" => "//meta[contains(@name,'robots')]",
+               "title" => "//title[string-length(text()) > 0]",
+             "refresh" => "//meta[contains(http-equiv,'refresh']",
+              "author" => "//meta[contains(@name,'author')",
+            "keywords" => "//meta[contains(@name, 'keywords')]",
+         "description" => "//meta[contains(@name, 'description')]",
+            "facebook" => "//meta[contains(@property, 'og:')]",
+             "twitter" => "//meta[contains(@property, 'twitter:')]",
+              "google" => "//meta[contains(@property, 'itemprop')]",
+           "copyright" => "//*[contains(@rel,'copyright')]",
+             "license" => "//*[contains(@rel,'license')]",
+           "alternate" => "//*[contains(@rel,'alternate')]",
+          "rel-author" => "//*[contains(@rel,'author')]",
+       "rel-publisher" => "//*[contains(@rel,'publisher')]",
+                "next" => "//*[contains(@rel,'next')]",
+                "prev" => "//*[contains(@rel,'prev')]"
         );
         
         $profile =  $this->GetXPaths($url, $paths);
-		
-		return $profile;
+        
+        return $profile;
     }
 
     
