@@ -64,9 +64,7 @@ class Embedbug{
     {   
         $key = $this->GenerateCacheKey($url, $query);
         $path = realpath(rtrim(self::$CachePath,"/"))."/"."$key.tmp";
-        
-        file_put_contents($path, serialize($content));
-        
+        file_put_contents($path, serialize($content));    
         chmod($path, 0655);
     }
     
@@ -89,21 +87,36 @@ class Embedbug{
         return $content;
     }
     
-    public function __construct()
+    public function __construct($cachepath=NULL, $curl=NULL, $domdoc=NULL)
     {
         self::$cURLStack  = array();
-        self::$cURLHandle = curl_multi_init();
-        self::$Doc = new \DOMDocument();
+        
+        if($curl === NULL)
+        {
+            self::$cURLHandle = curl_multi_init();
+        }
+        else self::$cUrlHandle = $curl;
+        
+        if($domdoc === NULL)
+        {
+            self::$Doc = new \DOMDocument();
+            libxml_use_internal_errors(true);
+            libxml_clear_errors();            
+        }
+        else self::$Doc = $domdoc;
+        
         self::$cURLResponse = array();
-        self::$CachePath = sys_get_temp_dir();
+
+        if($cachepath === NULL)
+        {
+            self::$CachePath = sys_get_temp_dir();
+        } else self::$Cachepath = $cachepath;
         
         self::$Caching = 0;
 
         $this->terminate_length = 10240000;
-        $this->terminate_string = "</body>";
-        
-        libxml_use_internal_errors(true);
-        libxml_clear_errors();
+        $this->terminate_string = "</body>";    
+
     }
     
     public function SetURLs(array $urls, $cURLSettings = array())
@@ -148,8 +161,6 @@ class Embedbug{
                 }
             }
     
-        
-
             self::$xPath = new \DOMXPath(self::$Doc);
             self::$xPath->registerNamespace('php', 'http://php.net/xpath');
             self::$xPath->registerPhpFunctions(array('stripos','strtolower'));  
