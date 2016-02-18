@@ -4,3 +4,7 @@
 composer.lock
 *.sh
 *.bat
+*.phar
+*.log
+tests/log.*
+test/cache/*
