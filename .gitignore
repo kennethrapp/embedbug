@@ -6,5 +6,6 @@ composer.lock
 *.bat
 *.phar
 *.log
-tests/log/*
+tests/log/test.xml
+tests/log/test.log
 test/cache/*
