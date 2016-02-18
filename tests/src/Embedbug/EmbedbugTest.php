@@ -1,17 +1,13 @@
 <?php
 use \Embedbug\Embedbug as Embedbug;
-
-include_once("../../mocks/CurlMock.php");
-
 class EmbedbugTest extends \PHPUnit_Framework_TestCase
 {
 	private $Embedbug;
-	private $MockCurl;
-	private $MockDomDocument;
+	private $Localhost="localhost:8000";
 	
 	public function setUp()
 	{
-		$this->Embedbug = new Embedbug(NULL, new \CurlMock());
+		$this->Embedbug = new Embedbug();
 	}
 
 	public function tearDown()
@@ -22,5 +18,15 @@ class EmbedbugTest extends \PHPUnit_Framework_TestCase
 	public function testEmbedbugInitialize()
 	{
 		$this->assertInstanceOf('\Embedbug\Embedbug', $this->Embedbug);
+	}
+
+	public function testCurlWorksWithLocalHost()
+	{
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $this->Localhost."/index.html");
+		$response = curl_exec($ch);
+		$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$this->assertEquals($http_status, 200);
+
 	}
 }

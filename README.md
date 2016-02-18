@@ -284,9 +284,16 @@ for the matching url and queries until the cache file expires and is deleted.
 
 	$EmbedBug->SetCachePath(realpath("path/to/cache"));
 	$EmbedBug->Cache(int $time)->*any of the above queries*
-	
 
-In the test folder you can find tests which cover each of the examples here.
+**integration testing?**
+
+I've provided integration tests designed to be run in PHP's local server using phpunit, as opposed to making requests to remote URLS all the time. This is not the right way to do it but the right way would probably mean redesigning everything to fully mock Curl, DomDocument and DomXML and I really don't want to do that, so the "next best thing" to me is to run tests on a known data set.If you want to, you'll need to start the server and have the docroot point to tests/localhost like so:
+
+php -S localhost:8000 -t "tests\localhost"	(from within the tests directory)
+
+then you can run the test suite from another terminal. 
+
+In the test folder you can find old tests which cover each of the examples here
 
 **known issues/to fix or ignore**
 
