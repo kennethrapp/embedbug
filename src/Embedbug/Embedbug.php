@@ -87,33 +87,18 @@ class Embedbug{
         return $content;
     }
     
-    public function __construct($cachepath=NULL, $curl=NULL, $domdoc=NULL)
+    public function __construct()
     {
         self::$cURLStack  = array();
-        
-        if($curl === NULL)
-        {
-            self::$cURLHandle = curl_multi_init();
-        }
-        else self::$cUrlHandle = $curl;
-        
-        if($domdoc === NULL)
-        {
-            self::$Doc = new \DOMDocument();
-            libxml_use_internal_errors(true);
-            libxml_clear_errors();            
-        }
-        else self::$Doc = $domdoc;
-        
+        self::$cURLHandle = curl_multi_init();
+        self::$Doc = new \DOMDocument();
         self::$cURLResponse = array();
-
-        if($cachepath === NULL)
-        {
-            self::$CachePath = sys_get_temp_dir();
-        } else self::$Cachepath = $cachepath;
-        
+        self::$CachePath = sys_get_temp_dir();
         self::$Caching = 0;
-
+        
+        libxml_use_internal_errors(true);
+        libxml_clear_errors();   
+        
         $this->terminate_length = 10240000;
         $this->terminate_string = "</body>";    
 
