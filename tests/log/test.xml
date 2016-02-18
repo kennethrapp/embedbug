@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="Application Test Suite" tests="1" assertions="1" failures="0" errors="0" time="0.054988">
-    <testsuite name="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" tests="1" assertions="1" failures="0" errors="0" time="0.054988">
-      <testcase name="testEmbedbugInitialize" class="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" line="6" assertions="1" time="0.054988"/>
+  <testsuite name="Application Test Suite" tests="1" assertions="1" failures="0" errors="0" time="0.002882">
+    <testsuite name="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" tests="1" assertions="1" failures="0" errors="0" time="0.002882">
+      <testcase name="testEmbedbugInitialize" class="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" line="6" assertions="1" time="0.002882"/>
     </testsuite>
   </testsuite>
 </testsuites>
