@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="Application Test Suite" tests="2" assertions="2" failures="0" errors="0" time="0.025816">
-    <testsuite name="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" tests="2" assertions="2" failures="0" errors="0" time="0.025816">
-      <testcase name="testEmbedbugInitialize" class="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" line="18" assertions="1" time="0.002806"/>
-      <testcase name="testCurlWorksWithLocalHost" class="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" line="23" assertions="1" time="0.023010"/>
+  <testsuite name="Application Test Suite" tests="3" assertions="3" failures="0" errors="0" time="0.031257">
+    <testsuite name="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" tests="3" assertions="3" failures="0" errors="0" time="0.031257">
+      <testcase name="testCurlWorksWithLocalHost" class="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" line="14" assertions="1" time="0.023911"/>
+      <testcase name="testEmbedbugWorksWithLocalHost" class="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" line="26" assertions="1" time="0.001963"/>
+      <testcase name="testEmbedbugReturnsContent" class="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" line="36" assertions="1" time="0.005383"/>
     </testsuite>
   </testsuite>
 </testsuites>

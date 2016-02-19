@@ -2,17 +2,9 @@ PHPUnit 3.7.21 by Sebastian Bergmann.
 
 Configuration read from F:\programming\os_projects\github.kennethrapp\github\embedbug\project\phpunit.xml
 
-..<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8" />
-</head>
-<body>
-
-</body>
-</html>
+...
 
 Time: 0 seconds, Memory: 2.00Mb
 
-[30;42m[2KOK (2 tests, 2 assertions)
+[30;42m[2KOK (3 tests, 3 assertions)
 [0m[2K

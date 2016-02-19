@@ -274,6 +274,11 @@ Social media tags will be grouped under 'facebook', 'twitter' and 'google', and 
 					)
 			)
 	)
+
+** get debug data **
+
+
+** get errors **
 	
 	
 **caching queries**

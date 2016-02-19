@@ -10,7 +10,7 @@ class Embedbug{
     private static $cURLHandle;
     private static $xPath;
     private static $Doc;
-    
+    private static $Errors;
     public function __set($key, $val)
     {
         self::$Properties[$key] = $val;
@@ -95,13 +95,12 @@ class Embedbug{
         self::$cURLResponse = array();
         self::$CachePath = sys_get_temp_dir();
         self::$Caching = 0;
-        
-        libxml_use_internal_errors(true);
-        libxml_clear_errors();   
-        
+        self::$Errors = array();
+
         $this->terminate_length = 10240000;
         $this->terminate_string = "</body>";    
-
+        libxml_use_internal_errors(true);
+        libxml_clear_errors(); 
     }
     
     public function SetURLs(array $urls, $cURLSettings = array())
@@ -261,7 +260,7 @@ class Embedbug{
                     'header' => 1,
             'connecttimeout' => 5,
                    'timeout' => 15,
-                 'useragent' => $_SERVER['HTTP_USER_AGENT']
+                 'useragent' => $_SERVER['HTTP_USER_AGENT'] // doesn't work in CLI 
         ));
         
         if(count($cURLSettings))
@@ -294,6 +293,13 @@ class Embedbug{
         }); 
 
         curl_multi_add_handle(self::$cURLHandle, $cURL);
+        
+        $url = md5(trim(strtolower($url)));
+        
+        if(!isset(self::$Errors[$url]))
+        {
+            self::$Errors[$url]=array();
+        }
         
         return $cURL;
     }
@@ -350,19 +356,38 @@ class Embedbug{
         
         return null;
     }
-    
+
     public function GetInfo($url=null, $key=null)
     {
         $curl_const = 'CURLINFO_'.trim(strtoupper(str_replace(' ', '_', $key)));
         
         $url = md5(trim(strtolower($url)));
 
-        if(array_key_exists($url, self::$cURLStack) && defined($curl_const))
+        if(isset(self::$cURLStack[$url]))
         {
-            return curl_getinfo(self::$cURLStack[$url], constant($curl_const));
+            if(defined($curl_const))
+            {
+                return curl_getinfo(self::$cURLStack[$url], constant($curl_const));
+            }
+            else return curl_getinfo(self::$cURLStack[$url]);          
         }
+
+    }
+
+    public function GetDebug($url)
+    {
+        $key = md5(trim(strtolower($url)));
+        $errors = array();
         
-        return null;
+        if(isset(self::$Errors[$key]))
+        {
+            $errors = self::$Errors[$key];
+        }
+
+        $info = $this->GetInfo($url);
+ 
+        return array("url"=>$url,"errors"=>$errors,"info"=>$info);
+        
     }
     
      public function Execute()
@@ -372,7 +397,12 @@ class Embedbug{
         do
         {
             curl_multi_exec(self::$cURLHandle, $flag);
-        
+           
         }while($flag > 0);
+
+        foreach(self::$cURLStack as $key => $ch)
+        {
+            self::$Errors[$key][] = curl_error($ch);
+        }
     }
 }
