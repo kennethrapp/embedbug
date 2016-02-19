@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="Application Test Suite" tests="3" assertions="3" failures="0" errors="0" time="0.031257">
-    <testsuite name="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" tests="3" assertions="3" failures="0" errors="0" time="0.031257">
-      <testcase name="testCurlWorksWithLocalHost" class="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" line="14" assertions="1" time="0.023911"/>
-      <testcase name="testEmbedbugWorksWithLocalHost" class="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" line="26" assertions="1" time="0.001963"/>
-      <testcase name="testEmbedbugReturnsContent" class="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" line="36" assertions="1" time="0.005383"/>
+  <testsuite name="Application Test Suite" tests="9" assertions="21" failures="0" errors="0" time="0.051857">
+    <testsuite name="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" tests="9" assertions="21" failures="0" errors="0" time="0.051857">
+      <testcase name="testAssertDataPathExists" class="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" line="13" assertions="1" time="0.002848"/>
+      <testcase name="testCurlWorksWithLocalHost" class="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" line="18" assertions="1" time="0.029862"/>
+      <testcase name="testEmbedbugWorksWithLocalHost" class="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" line="31" assertions="1" time="0.002104"/>
+      <testcase name="testEmbedbugReturnsContentMatchingFile" class="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" line="44" assertions="3" time="0.003052"/>
+      <testcase name="testEmbedbugWorksWithMultipleURLs" class="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" line="71" assertions="6" time="0.004061"/>
+      <testcase name="testEmbedBugGetsCorrectContentTypeHeaders" class="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" line="105" assertions="2" time="0.002658"/>
+      <testcase name="testEmbedBugGetsCorrectPlaintextHeaders" class="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" line="134" assertions="2" time="0.002237"/>
+      <testcase name="testEmptyFileReturnsPlaintextAndDoesntBreakAnything" class="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" line="162" assertions="2" time="0.002034"/>
+      <testcase name="testEmbedBugGetsRedirect" class="EmbedbugTest" file="F:\programming\os_projects\github.kennethrapp\github\embedbug\project\tests\src\Embedbug\EmbedbugTest.php" line="189" assertions="3" time="0.003001"/>
     </testsuite>
   </testsuite>
 </testsuites>

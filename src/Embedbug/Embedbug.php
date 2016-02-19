@@ -41,7 +41,7 @@ class Embedbug{
     {
         self::$CachePath = $path;
     }
-    
+
     public function Cache($time)
     {
         self::$Caching = $time;
@@ -132,7 +132,7 @@ class Embedbug{
         
         if($contentArray = $this->GetContent($url, 'content'))
         {
-            $content = implode("", $contentArray);
+            $content = implode(NULL, $contentArray);
             
             self::$Doc->loadHTML('<?xml encoding="UTF-8">' . $content);
 
@@ -202,7 +202,10 @@ class Embedbug{
         
         foreach($tags as $tag=>$val)
         {
-            $remap_tags[$val]= sprintf("//*[php:functionString('strtolower', name()) = '%s' ]", addslashes(strtolower(trim($val))));
+            // taking into account that HTML is case insensitive, we've imported strtolower
+            // so we can make a case insensitive filter against the tag names.
+            $remap_tags[$val] = sprintf("//*[php:functionString('strtolower', name()) = '%s' ]", 
+                addslashes(strtolower(trim($val))));
         }
         
         return $this->GetXPaths($url, $remap_tags);
@@ -214,6 +217,7 @@ class Embedbug{
         
         foreach($tags as $tag)
         {
+            //NTS: test to see if case matters for this. 
             $remap_tags[$tag]= sprintf("//%s[contains(text(), '%s')]", $tag, addslashes(trim($text)));
         }
         
@@ -242,8 +246,7 @@ class Embedbug{
                 "prev" => "//*[contains(@rel,'prev')]"
         );
         
-        $profile =  $this->GetXPaths($url, $paths);
-        
+        $profile =  $this->GetXPaths($url, $paths);    
         return $profile;
     }
 
@@ -270,25 +273,21 @@ class Embedbug{
         
         $this->cURLSetOpt($cURL, 'headerfunction',  function($ch, $header) use($url, $ref)
         {   
-            $ref->SetContent($url, 'headers', $header);     
-            
+            $ref->SetContent($url, 'headers', $header);    
             return strlen($header);        
         });
         
         $this->cURLSetOpt($cURL, 'writefunction', function($ch, $string) use($url, $ref)
         {      
             $len = strlen($string);
-    
+            $ref->SetContent($url, 'content',  $string);
             /* if either the length of the content exceeds the termination length or
-            the terminate string has been found, end the process, otherwise, save the
-            chunk and continue. */
-            
+            the terminate string has been found, end the process */
             if(($len >= $ref->terminate_length) || (stripos($string, $ref->terminate_string)))
             {
                 return -1;
             }
             
-            $ref->SetContent($url, 'content',  $string); 
             return $len;
         }); 
 
@@ -375,9 +374,8 @@ class Embedbug{
     }
 
     public function GetDebug($url)
-    {
+    {  
         $key = md5(trim(strtolower($url)));
-        $errors = array();
         
         if(isset(self::$Errors[$key]))
         {
@@ -385,15 +383,14 @@ class Embedbug{
         }
 
         $info = $this->GetInfo($url);
- 
-        return array("url"=>$url,"errors"=>$errors,"info"=>$info);
-        
+
+        return array("url"=>$url, "errors"=>$errors, "info"=>$info);
     }
     
      public function Execute()
      {
         $flag = null;
-
+        
         do
         {
             curl_multi_exec(self::$cURLHandle, $flag);
